@@ -91,7 +91,7 @@
 <meta property="og:site_name" content="不会打篮球的程序猿，不是好的斯诺克运动员">
 <meta property="og:description" content="我省略故事的背景直接讲需求。">
 <meta property="og:image" content="http://yoursite.com/2017/04/15/批量下载图片/1.png">
-<meta property="og:updated_time" content="2017-04-15T15:29:57.000Z">
+<meta property="og:updated_time" content="2017-04-15T15:43:47.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="批量下载图片">
 <meta name="twitter:description" content="我省略故事的背景直接讲需求。">
@@ -360,7 +360,7 @@
       
 
       
-        <p>  我省略故事的背景直接讲需求。<a id="more"></a><br>  假设你有如下一个格式的文件，将第二列路径里的资源(这里是图片)下载下来，同时第一列相同的放在同一个文件夹里，以第一列作为文件夹名。</p>
+        <p>  我省略故事的背景直接讲需求。<a id="more"></a><br>  假设你有如下一个格式的文件，将第二列路径里的资源(这里是图片)下载下来，同时第一列相同的放在同一个文件夹里，以第一列作为文件夹名，假设文件有几千行。<br>  暴力解法就是比方在桌面建个叫“文件夹1”的文件夹，逐行复制路径敲到浏览器里，然后右键另存为，再建个文件夹2，另存为，再建个文件夹N，再做N次另存为……</p>
 <blockquote>
 <p>  文件夹1　　<a href="http://img1.gtimg.com/19/1939/193965/19396516_640x640_0.jpg" target="_blank" rel="external">http://img1.gtimg.com/19/1939/193965/19396516_640x640_0.jpg</a><br>  文件夹1　　<a href="http://img1.gtimg.com/19/1939/193965/19396518_640x640_0.jpg" target="_blank" rel="external">http://img1.gtimg.com/19/1939/193965/19396518_640x640_0.jpg</a><br>  文件夹2　　<a href="https://tpc.googlesyndication.com/daca_images/simgad/14582762621627442813" target="_blank" rel="external">https://tpc.googlesyndication.com/daca_images/simgad/14582762621627442813</a><br>  ……</p>
 </blockquote>
@@ -368,7 +368,7 @@
 <blockquote>
 <p>  <a href="http://img1.gtimg.com/19/1939/193965/19396516_640x640_0.jpg" target="_blank" rel="external">http://img1.gtimg.com/19/1939/193965/19396516_640x640_0.jpg</a><br>  <a href="http://img1.gtimg.com/19/1939/193965/19396518_640x640_0.jpg" target="_blank" rel="external">http://img1.gtimg.com/19/1939/193965/19396518_640x640_0.jpg</a><br>  <a href="https://tpc.googlesyndication.com/daca_images/simgad/14582762621627442813" target="_blank" rel="external">https://tpc.googlesyndication.com/daca_images/simgad/14582762621627442813</a></p>
 </blockquote>
-<p>  难受的是现在要把做归档，比方文件夹1里放两张图，文件夹2里放一张图，那就免不了编程做判断了。<br>  <img src="/2017/04/15/批量下载图片/1.png" alt="效果图" title="效果图"><br>  我第一反应是写个shell脚本来处理，虽然我从来没搞过shell脚本哈哈……Google了shell教程的关键字尝试了一下之后我就放弃了，因为当时已经快10点，而shell的基础流程判断、变量、和调外部指令等语法比想的要复杂的多，一时半会是搞不定的。<strong>故事的结局并不美好，当晚隔壁部门的同事似乎是几个人用人肉的方式，在界面上一张张图片右键另存为的方式处理了快5千张图，据说搞到夜里1点多……</strong>，当然当晚我放弃的主要原因也是因为没权限操作生产环境拿不到这些资源的访问路径，这些都是后话了。</p>
+<p>  难受的是现在要把做归档，文件夹1里放两张图，文件夹2里放一张图，那就免不了编程做判断了。<br>  <img src="/2017/04/15/批量下载图片/1.png" alt="效果图" title="效果图"><br>  我第一反应是写个shell脚本来处理，虽然我从来没搞过shell脚本哈哈……Google了shell教程的关键字尝试了一下之后我就放弃了，因为当时已经快10点，而shell的基础流程判断、变量、和调外部指令等语法比想的要复杂的多，一时半会是搞不定的。<strong>故事的结局并不美好，当晚隔壁部门的同事似乎是几个人用人肉的方式，在界面上一张张图片右键另存为的方式处理了快5千张图，据说搞到夜里1点多……</strong>，当然当晚我放弃的主要原因也是因为没权限操作生产环境拿不到这些资源的访问路径，这些都是后话了。</p>
 <p>  能处理方式有很多，用awk编程、shell脚本、用你熟悉的语言写个程序调wget指令等等。<strong>哪怕是不会编程的人，其实找浏览器插件或者其他工具什么的肯定还是有其他办法处理的嗯</strong><br>  刚刚我用java写了个程序去搞，代码就不贴了，<strong>在这里向那些可怜的同事致以无限的同情和敬意……</strong></p>
 
       
