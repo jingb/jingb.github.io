@@ -520,49 +520,7 @@ Selector不断轮询注册在上面的Channel，由于JDK使用了epoll函数代
 ### 归并排序
 > [wiki](https://zh.wikipedia.org/wiki/%E5%BD%92%E5%B9%B6%E6%8E%92%E5%BA%8F)
 
-## 二分查找
-### 编程题
-> * [有序数组(0 1 2 4 5 6 7)在某个位置做了旋转，比方(4 5 6 7 0 1 2)，元素不重，找出最小的那个数](https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/description/)
-   * 最优是用二分查找
-* [英文wiki](https://en.wikipedia.org/wiki/Binary_search_algorithm)
-* 相关术语，前驱(predecessor, next-smallest element)，后继(successor，next-largest element)，秩(rank, the number of smaller elements)
-* 适合解决的问题, 范围查询(Rang query)，最近邻搜索
-
-### 代码模板
-```java
-while (l < r - 1) {
-    int m = l + (r - l) / 2;
-    
-    // means that there is no rotate.
-    ... 这里添加各种退出条件，比如找到了目标值等 8             
-
-    // left side is sorted.
-    if (A[m] > A[l]) {
-        l = m;
-    } else {
-        r = m;
-    }
-}  
-```
-
-### 实现
-```java
-public static int binarySearch(int[] arr, int value) {
-	if (arr == null) return -1;
-	int lo = 0, high = arr.length - 1;
-	while (lo <= high) {
-		int mid = (lo + high) / 2;
-		if (arr[mid] < value) {
-			lo = mid + 1;
-		} else if (arr[mid] > value) {
-			high = mid - 1;
-		} else {
-			return mid;
-		}
-	}
-	return -1;
-}
-```
+## 基础编程题
 
 ## servlet
 > * [工作原理](https://stackoverflow.com/questions/3106452/how-do-servlets-work-instantiation-sessions-shared-variables-and-multithreadi)
