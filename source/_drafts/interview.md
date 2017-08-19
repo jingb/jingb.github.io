@@ -7,6 +7,7 @@ tags:
 
 ## 线程和进程对比
 > * [leetcode](https://discuss.leetcode.com/topic/90877/process-vs-thread/2)
+* [表格](http://www.differencebetween.info/difference-between-process-and-thread)
 
 <!-- more -->
 
@@ -18,6 +19,43 @@ tags:
 #### 阻塞队列
 ##### 代码实现
 > * 数组 + notify、wait方法
+   * [实现](http://tutorials.jenkov.com/java-concurrency/blocking-queues.html)
+   ```java
+   public class BlockingQueue {
+
+     private List queue = new LinkedList();
+     private int  limit = 10;
+   
+     public BlockingQueue(int limit){
+       this.limit = limit;
+     }
+   
+     public synchronized void enqueue(Object item) throws InterruptedException  {
+       while(this.queue.size() == this.limit) {
+         wait();
+       }
+       if(this.queue.size() == 0) {
+         //唤醒那些堵塞在dequeue方法的线程
+         notifyAll();
+       }
+       this.queue.add(item);
+     }
+   
+   
+     public synchronized Object dequeue()
+     throws InterruptedException{
+       while(this.queue.size() == 0){
+         wait();
+       }
+       if(this.queue.size() == this.limit){
+         notifyAll();
+       }
+   
+       return this.queue.remove(0);
+     }
+   
+   }
+   ```
 * 用juc包里的类实现
 
 ##### JDK提供
@@ -67,7 +105,7 @@ tags:
 * Thread.isInterrupted() 测试线程是否已经中断。线程的中断状态不受该方法的影响
 * Thread.interrupt() 中断线程
 * **interrupt方法是唯一能将中断状态设置为true的方法。静态方法interrupted会将当前线程的中断状态清除，但这个方法的命名极不直观，很容易造成误解，需要特别注意**
-* 当处理完InterruptedException后想要传播中断状态，必须要么重新抛出捕获的InterruptedException，要么通过Thread.currentThread().interrupt()重新设置中断状态。
+* **当处理完InterruptedException后想要传播中断状态，必须要么重新抛出捕获的InterruptedException，要么通过Thread.currentThread().interrupt()重新设置中断状态**。
 
 #### 一个实例
 ##### 需求
@@ -101,44 +139,44 @@ private static Runnable taskThatFinishesEarlyOnInterruption() {
 ```java
 public class DeadLock {
 
-	public static void main(String[] args) {
-		Object o1 = new Object();
-		Object o2 = new Object();
-		Tthread t1 = new Tthread(o1, o2);
-		Tthread t2 = new Tthread(o2, o1);
-		t1.start();
-		t2.start();
-		
-		System.out.println("jingb");
-	}
+    public static void main(String[] args) {
+        Object o1 = new Object();
+        Object o2 = new Object();
+        Tthread t1 = new Tthread(o1, o2);
+        Tthread t2 = new Tthread(o2, o1);
+        t1.start();
+        t2.start();
+        
+        System.out.println("jingb");
+    }
 }
 
 class Tthread extends Thread {
-	
-	Object t1, t2;
-	
-	public Tthread(Object t1, Object t2) {
-		this.t1 = t1;
-		this.t2 = t2;
-	}
-	
-	public Tthread() {}
-	
-	@Override
-	public void run() {
-		synchronized (t1) {
-			System.out.println("I am thread: " + Thread.currentThread().getName() 
-					+ " and I have lock object: " + t1);
-			try {
-				TimeUnit.SECONDS.sleep(1);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			synchronized (t2) {
-				System.out.println("I am thread: " + Thread.currentThread().getName());
-			}
-		}
-	}
+    
+    Object t1, t2;
+    
+    public Tthread(Object t1, Object t2) {
+        this.t1 = t1;
+        this.t2 = t2;
+    }
+    
+    public Tthread() {}
+    
+    @Override
+    public void run() {
+        synchronized (t1) {
+            System.out.println("I am thread: " + Thread.currentThread().getName() 
+                    + " and I have lock object: " + t1);
+            try {
+                TimeUnit.SECONDS.sleep(1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            synchronized (t2) {
+                System.out.println("I am thread: " + Thread.currentThread().getName());
+            }
+        }
+    }
 }
 
 ```
@@ -293,7 +331,7 @@ Selector不断轮询注册在上面的Channel，由于JDK使用了epoll函数代
 
 #### [哈希表的容量一定要是2的整数次幂](http://www.cnblogs.com/peizhe123/p/5790252.html)
 > * 计算key放在哪个位置时，用hash值对length取模可以确保均匀
-* length为2的整数次幂的话，h&(length-1)就相当于对length取模
+* length为2的整数次幂的话，hashValue & (length-1)就相当于对length取模
 
 #### 为什么要二次hash
 ##### 过程 
@@ -426,7 +464,7 @@ Selector不断轮询注册在上面的Channel，由于JDK使用了epoll函数代
 
 #### 保证了两件事情
 > * 被修饰的变量存于main memory，而不是CPU cache，避免编译器优化带来的问题(比方instructions reordered)
-* 线程1写了volatile变量X，线程2可以读到最新的值，同时**线程1在此(写X)之前对其他非volatile变量的写操作比方有非volatile变量Y，也会被写回到main memory中，即线程2只要做了读X的动作，读到的Y也是最新的Y**
+* 线程1写了volatile变量X，线程2可以读到最新的值，同时**线程1在此(写X)之前对其他非volatile变量的写操作比方有非volatile变量Y，也会被写回到main memory中，即线程2只要做了读X的动作，读到的Y也是最新的Y** (有点像一些数据库中间件，线程对主库做了写操作，则后续的读操作会被强制路由到主库，而不是从库，因为有可能因为主从复制延时的问题读不到最新值)
 
 #### 适用场景
 > * **对变量的写操作不依赖于当前值**，i++这种就不行
@@ -1104,6 +1142,9 @@ The access control includes
 
 # TODO
 > 
+* 还需从头回顾的内容
+ * jvm整体
+ * netty结构
 * 分布式还未覆盖的地方
  * 限流量
  * 服务降级
@@ -1123,4 +1164,7 @@ The access control includes
 * TCP关键题相关
 * HTTP
 * java8 api实现sql函数，和Stream、CompletableFuture细化
+
+# 项目问题准备
+> * 收益汇总，在数据库层汇总(悲观锁)而不是应用层
 
