@@ -398,8 +398,19 @@ Selector不断轮询注册在上面的Channel，由于JDK使用了epoll函数代
 ### 参数
 > [江南白衣](http://calvin1978.blogcn.com/articles/jvmoption-2.html)
 
+#### GC参数
+> * -XX:+PrintGCDetails 
+* -Xloggc:logs/gc.log
+
+#### heap相关参数
+> * -Xms20M heap最小 
+* -Xmx20M heap最大 
+* -Xmn20M 年轻代大小(1.4or lator) （eden+ 2 survivor space)
+
 ### jvm内存结构
 {% asset_img 2.png 在Sun JDK中，本地方法栈和Java栈是同一个%}
+
+{% asset_img 20.png 注意heap区的划分 %}
 
 <span id="Class Loader" />
 #### Class Loader
@@ -426,6 +437,12 @@ Selector不断轮询注册在上面的Channel，由于JDK使用了epoll函数代
 {% asset_img 3.jpg 永久代空间在Java SE8特性中已经被移除%}
 {% asset_img 4.jpg %}
 
+#### java内存分配策略
+> * 局部变量、形参都是从栈中分配空间
+* **栈分配空间时，如为一个即将要调用的程序模块分配数据区时，应该事先知道这个数据区的大小。也就是说虽然分配是在程序运行时进行的，但是分配的大小是确定的、不变的，而这个大小是在编译期决定的而不是运行时**
+* 堆在应用程序运行时请求操作系统给自己分配内存，由于操作系统管理内存分配，所以效率较栈要低。但优点在于编译器不需要知道从堆那里分配多少存储空间，也不必知道存储的数据要在堆里停留多长的时间，有更大的灵活性
+* 像多态这样的机制，所需的存储空间只有在运行时创建了对象之后才能确定，必须是堆内存的分配
+
 ### 类的加载机制
 [跳转](#Class Loader)
 
@@ -444,6 +461,14 @@ Selector不断轮询注册在上面的Channel，由于JDK使用了epoll函数代
 > * GC日志分析
 * 调优命令
 * 调优工具
+
+#### 日志分析
+> * [参考文章](http://swcdxd.iteye.com/blog/1859858)
+* 5.617: [GC 5.617: [ParNew: 43296K->7006K(47808K), 0.0136826 secs] 44992K->8702K(252608K), 0.0137904 secs] [Times: user=0.03 sys=0.00, real=0.02 secs]  
+* 5.617（时间戳）: [GC（Young GC） 5.617（时间戳）: 
+[ParNew（使用ParNew作为年轻代的垃圾回收期）: 43296K（年轻代垃圾回收前的大小）->7006K（年轻代垃圾回收以后的大小）(47808K)（年轻代的总大小）, 0.0136826 secs（回收时间）] 
+44992K（堆区垃圾回收前的大小）->8702K（堆区垃圾回收后的大小）(252608K)（堆区总大小）, 0.0137904 secs（回收时间）] 
+[Times: user=0.03（Young GC用户耗时） sys=0.00（Young GC系统耗时）, real=0.02 secs（Young GC实际耗时）]  
 
 
 ## JMM(java memory model)
@@ -1187,13 +1212,14 @@ The access control includes
 * ngx_cache_purge
 
 # TODO
-> * linux指令
+> * linux指令(结合着jvm)
 * 还需从头回顾的内容
- * jvm整体
+ * jvm整体(周一晚，至迟周二完成)
  * netty结构
-* 原理类准备3个
+* 原理类准备
  * zookeeper
  * spring 
+ * redis
  * mybatis
 * 工厂模式
 * 分布式还未覆盖的地方
