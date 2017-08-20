@@ -566,11 +566,39 @@ Selector不断轮询注册在上面的Channel，由于JDK使用了epoll函数代
 
 ## 设计模式
 > * 适配器
+   * 实现一个接口类不想实现其所有方法，可以继承其抽象子类(适配器类\*\*adapter)只覆写想要覆写的方法
    * [插线口标准实例](http://blog.csdn.net/zhangjg_blog/article/details/18735243)
-   * 实现一些接口类不想实现其所有方法，可以继承其抽象子类只覆写想要覆写的方法
+   ```java
+   public class SocketAdapter    
+        implements GermanSocketInterface {   //实现旧接口  
+  
+       private ChineseSocketInterface gbSocket;  
+         
+       public SocketAdapter(GBSocketInterface gbSocket) {  
+           this.gbSocket = gbSocket;  
+       }  
+         
+       /** 
+        * 将对旧接口的调用适配到新接口 
+        */  
+       @Override  
+       public void powerWithTwoRound() {  
+             
+           gbSocket.powerWithThreeFlat();  
+       }  
+     
+   }  
+   ```
+   
 * 工厂
 * 装饰
 
+## linux commands 
+### top
+### iostat
+### free
+### vmstat
+### strace
 
 # 熟悉
 
@@ -594,7 +622,15 @@ Selector不断轮询注册在上面的Channel，由于JDK使用了epoll函数代
 * 不是某种索引，而是数据组织方式，像字典的以拼音查和以偏旁部首查。
 
 ## TCP
-
+### TIME_WAIT数量过多解决
+> * {% asset_img 15.png 主动发起断链的会进入TIME_WAIT状态 %}
+* 设置tcp_tw_reuse和tcp_tw_recycle参数，HTTP服务器设置keep-alive参数，让客户端断链
+* **使用tcp_tw_reuse和tcp_tw_recycle来解决TIME_WAIT的问题是非常非常危险的，因为这两个参数违反了TCP协议**
+* 许令波的深入分析java web技术内幕关于tcp参数调优
+* [丁火笔记](https://huoding.com/2012/01/19/142)
+* [丁火笔记](https://huoding.com/2013/12/31/316)
+* [酷壳](http://coolshell.cn/articles/11564.html)
+* [王宏江](http://hongjiang.info/nginx-tomcat-keep-alive/)
 
 ## HTTP
 
@@ -1141,10 +1177,11 @@ The access control includes
 * ngx_cache_purge
 
 # TODO
-> 
+> * linux指令
 * 还需从头回顾的内容
  * jvm整体
  * netty结构
+* 工厂模式
 * 分布式还未覆盖的地方
  * 限流量
  * 服务降级
@@ -1165,6 +1202,9 @@ The access control includes
 * HTTP
 * java8 api实现sql函数，和Stream、CompletableFuture细化
 
-# 项目问题准备
-> * 收益汇总，在数据库层汇总(悲观锁)而不是应用层
+# 项目准备
+> * 解决问题
+   * 收益汇总，在数据库层汇总(悲观锁)而不是应用层
+* 负责内容
+
 
