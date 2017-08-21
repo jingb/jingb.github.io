@@ -396,16 +396,19 @@ Selector不断轮询注册在上面的Channel，由于JDK使用了epoll函数代
 ## JVM
 
 ### 参数
-> [江南白衣](http://calvin1978.blogcn.com/articles/jvmoption-2.html)
+> * [江南白衣](http://calvin1978.blogcn.com/articles/jvmoption-2.html)
+* [网络文章](http://www.cnblogs.com/redcreen/archive/2011/05/04/2037057.html)
 
 #### GC参数
 > * -XX:+PrintGCDetails 
 * -Xloggc:logs/gc.log
+* JVM退出一般会在工作目录下产生一个日志文件，可以通过参数设定，-XX:ErrorFile=/tmp/log/hs\_error\_%p.log
 
 #### heap相关参数
 > * -Xms20M heap最小 
 * -Xmx20M heap最大 
 * -Xmn20M 年轻代大小(1.4or lator) （eden+ 2 survivor space)
+* -XX:+HeapDumpOnOutOfMemoryError 可以在内存耗尽时记录下内存快照 -XX:HeapDumpPath可以指定文件路径
 
 ### jvm内存结构
 {% asset_img 2.png 在Sun JDK中，本地方法栈和Java栈是同一个%}
@@ -449,13 +452,19 @@ Selector不断轮询注册在上面的Channel，由于JDK使用了epoll函数代
 
 ### GC算法 垃圾回收
 > * 对象存活判断
-* GC算法 标记 -清除算法、复制算法、标记-压缩算法，我们常用的垃圾回收器一般都采用分代收集算法
+* GC算法 标记 -清除算法、复制算法、标记-压缩算法，**我们常用的垃圾回收器一般都采用分代收集算法**
 * 垃圾回收器
 * [面向GC的JAVA编程](http://blog.hesey.net/2014/05/gc-oriented-java-programming.html)
 
 #### 如何判断对象是否存活
-> * 引用计数法，实现简单，判定高效，但不能解决对象之间相互引用的问题
+> * 引用计数法，实现简单，判定高效，**无法解决对象相互循环引用的问题**
 * 可达性分析法
+ * 从GC Roots开始向下搜索，搜索所走过的路径称为引用链。当一个对象到GC Roots没有任何引用链相连时，则证明此对象是不可用的。不可达对象
+ * GC Roots包括
+   * 虚拟机栈中引用的对象
+   * 方法区中类静态属性实体引用的对象
+   * 方法区中常量引用的对象
+   * 本地方法栈中JNI引用的对象
 
 ### GC分析 命令调优
 > * GC日志分析
@@ -463,7 +472,10 @@ Selector不断轮询注册在上面的Channel，由于JDK使用了epoll函数代
 * 调优工具
 
 #### 日志分析
-> * [参考文章](http://swcdxd.iteye.com/blog/1859858)
+> * {% asset_img 21.png %}
+* **如果 ending occupancy1 - starting occupancy1 = ending occupancy2 - starting occupancy2 则表明这次GC对象100%被回收，没有对象进入Old区或者Perm区。如果等号前面的值大于等号后面的值，那么差值就是这次对象进入Old区或Perm区的大小。 而随着时间的增长，如果 ending occupancy2的值一直在增长，而且Full GC很频繁，那很可能就是发生内存泄露了**
+* {% asset_img 20.png 注意heap区的划分 %}
+* [参考文章](http://swcdxd.iteye.com/blog/1859858)
 * 5.617: [GC 5.617: [ParNew: 43296K->7006K(47808K), 0.0136826 secs] 44992K->8702K(252608K), 0.0137904 secs] [Times: user=0.03 sys=0.00, real=0.02 secs]  
 * 5.617（时间戳）: [GC（Young GC） 5.617（时间戳）: 
 [ParNew（使用ParNew作为年轻代的垃圾回收期）: 43296K（年轻代垃圾回收前的大小）->7006K（年轻代垃圾回收以后的大小）(47808K)（年轻代的总大小）, 0.0136826 secs（回收时间）] 
@@ -1215,6 +1227,7 @@ The access control includes
 > * linux指令(结合着jvm)
 * 还需从头回顾的内容
  * jvm整体(周一晚，至迟周二完成)
+  * jvm指令（jstat和GC相关、jmap和堆快照文件相关）
  * netty结构
 * 原理类准备
  * zookeeper
@@ -1245,6 +1258,7 @@ The access control includes
 # 项目准备
 > * 解决问题
    * 收益汇总，在数据库层汇总(悲观锁)而不是应用层
+   * 注册流程的优化
 * 负责内容
 
 
