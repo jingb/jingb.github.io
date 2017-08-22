@@ -631,11 +631,32 @@ Selector不断轮询注册在上面的Channel，由于JDK使用了epoll函数代
 * 装饰
 
 ## linux commands 
-### top
-### iostat
-### free
-### vmstat
-### strace
+### 系统类相关
+#### top
+#### iostat
+> * [参考1](http://www.ha97.com/4546.html)
+* [参考2](http://www.cnblogs.com/peida/archive/2012/12/28/2837345.html)
+* [参考3](http://linuxperf.com/?p=156)
+* 如果%iowait的值过高，表示硬盘存在I/O瓶颈，%idle值高，表示CPU较空闲，如果%idle值高但系统响应慢时，有可能是CPU等待分配内存，此时应加大内存容量。%idle值如果持续低于10，那么系统的CPU处理能力相对较低，表明系统中最需要解决的资源是CPU
+* -x参数输出磁盘extended信息，比方%util 如果%util接近100%，说明产生的I/O请求太多，I/O系统已经满负荷，该磁盘可能存在瓶颈。如果 svctm 比较接近 await，说明 I/O 几乎没有等待时间；如果 await 远大于 svctm，说明I/O 队列太长，io响应太慢，则需要进行必要优化。如果avgqu-sz比较大，也表示有当量io在等待
+
+#### free(mac用vm_stat)
+> * [参考1](http://www.cnblogs.com/coldplayerest/archive/2010/02/20/1669949.html)
+* [参考2](http://www.php-oa.com/2008/04/04/linux-free.html)
+
+#### vmstat(mac用vm_stat)
+> * [英文资料有示例](https://www.thomas-krenn.com/en/wiki/Linux_Performance_Measurements_using_vmstat#CPU_User_Load_Example)
+   * CPU User Load 用户进程执行cpu密集的任务，比方A standard audio file will be encode as an MP3 file，cpu相关列的us很高
+   * CPU System Load 比方dd if=/dev/urandom of=500MBfile bs=1M count=500这个指令，生成随机数往文件里写，cpu相关列的sy很高
+   * RAM Bottleneck (swapping) 内存不足，so(swap out - memory swapped to disk)会很高
+   * High IO Read Load  A large file (such as an ISO file) will be read and written to /dev/null using dd
+   * High IO Write Load  dd will read from /dev/zero and write a file. 
+   * CPU Waiting for IO (见参考) 
+* [实际机子情况分析](https://serverfault.com/questions/54546/how-would-you-interpret-the-following-vmstat-output)
+* [参考](http://www.cnblogs.com/ggjucheng/archive/2012/01/05/2312625.html) 
+* vmstat看swpd大于0且si so数值较大说明内存不够用，考虑加内存条，top进入监控后，可以按M按占用内存多少进行排序展示，P按cpu
+
+#### strace(mac用dtruss)
 
 # 熟悉
 

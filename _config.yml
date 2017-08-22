@@ -2,7 +2,6 @@
 ## Docs: https://hexo.io/docs/configuration.html
 ## Source: https://github.com/hexojs/hexo/
 
-
 # Site
 title: 想做个好玩的人
 subtitle: 
@@ -41,10 +40,10 @@ post_asset_folder: true
 relative_link: false
 future: true
 highlight:
-  enable: true
   line_number: true
   auto_detect: false
-  tab_replace:
+  tab_replace: 
+  enable: false
 
 # Category & Tag
 default_category: uncategorized
@@ -104,3 +103,4 @@ backup:
     repository:
       github: https://github.com/jingb/jingb.github.io.git,hexo
       gitcafe: https://github.com/jingb/jingb.github.io.git,hexo
+
