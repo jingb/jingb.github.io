@@ -15,12 +15,25 @@ tags:
 > Java里面进行多线程通信的主要方式就是**共享内存**的方式，共享内存主要的关注点有两个：可见性和有序性。加上复合操作的原子性，可以认为Java的线程安全性问题主要关注点有3个：**可见性、有序性和原子性。**
 **Java内存模型（JMM）解决了可见性和有序性的问题，而锁解决了原子性的问题。**
 
+### 线程
+#### 线程状态
+> * [文章](https://fangjian0423.github.io/2016/06/04/java-thread-state/)
+* NEW
+ * Thread t = new Thread()
+* RUNNABLE
+* BLOCKED
+* WAITING
+ * 执行了wait方法没带时间参数、join方法没带时间参数或者LockSupport.pack方法
+* TIMED_WAITING
+ * sleep、wait、join、LockSupport的parkNanos方法、LockSupport的parkUntil方法
+* TERMINATED
+
 ### 队列
 #### 阻塞队列
 ##### 代码实现
 > * 数组 + notify、wait方法
    * [实现](http://tutorials.jenkov.com/java-concurrency/blocking-queues.html)
-   ```java
+   ```plain
    public class BlockingQueue {
 
      private List queue = new LinkedList();
@@ -112,7 +125,7 @@ tags:
 　　参考自**[文章](https://praveer09.github.io/technology/2015/12/06/understanding-thread-interruption-in-java/)**的部分代码，后面讲线程中断状态的还需再细化。
 　　开个线程在控制台打印0-9九个数字，一秒打一个。线程start后，主线程休眠3秒，然后请求子线程终止，在主线程完全关闭应用之前，至多等待子线程1秒去终止。子线程需马上响应主线程的终止请求。
 ##### 代码
-``` java
+```plain
 public static void main(String[] args) throws InterruptedException {
     Thread taskThread = new Thread(taskThatFinishesEarlyOnInterruption());
     taskThread.start();      
@@ -136,7 +149,7 @@ private static Runnable taskThatFinishesEarlyOnInterruption() {
 ```
 
 ### 实现死锁的实例代码
-```java
+```plain
 public class DeadLock {
 
     public static void main(String[] args) {
@@ -413,7 +426,7 @@ Selector不断轮询注册在上面的Channel，由于JDK使用了epoll函数代
 ### jvm内存结构
 {% asset_img 2.png 在Sun JDK中，本地方法栈和Java栈是同一个%}
 
-{% asset_img 20.png 注意heap区的划分 %}
+{% asset_img 20.png 注意heap区的划分，survivor分成from和to是因为young区采用复制的GC算法 %}
 
 <span id="Class Loader" />
 #### Class Loader
@@ -434,11 +447,21 @@ Selector不断轮询注册在上面的Channel，由于JDK使用了epoll函数代
 {% asset_img 9.png %}
 
 #### Java Stack
-#### Method Area
+#### Method Area(也叫Permanent Generation)
+
 #### Heap
-> Java堆是被所有线程共享的一块内存区域，主要用于存放对象实例
-{% asset_img 3.jpg 永久代空间在Java SE8特性中已经被移除%}
-{% asset_img 4.jpg %}
+> * Java堆是被所有线程共享的一块内存区域，主要用于存放对象实例
+* 对象一般是直接在Eden区分配空间，大于 -XX:PretenureSizeThreshold 的直接在Old区分配空间
+* young区垃圾回收使用的是复制算法，因为young区的对象大多存活时间很短，所以每次只复制很少的对象，效率高
+* Full GC的垃圾收集采用的是mark-sweep或者mark-compact算法
+* Young / Old = 1 / 2       –XX:NewRatio 指定
+* Eden : from : to = 8 : 1 : 1        –XX:SurvivorRatio
+* JVM 每次只会使用 Eden 和其中的一块 Survivor 区域来为对象服务，所以无论什么时候，总是有一块 Survivor 区域是空闲着的，新生代实际可用的内存空间为 9/10
+* **survivor分成from和to是因为young区采用**[复制的GC算法](#GC copying)
+* Survivor 区的对象每熬过一次 Minor GC，就将对象的年龄 + 1，当对象的年龄达到某个值时( -XX:MaxTenuringThreshold 来设定 )
+
+
+
 
 #### java内存分配策略
 > * 局部变量、形参都是从栈中分配空间
@@ -450,13 +473,38 @@ Selector不断轮询注册在上面的Channel，由于JDK使用了epoll函数代
 [跳转](#Class Loader)
 
 
-### GC算法 垃圾回收
-> * 对象存活判断
-* GC算法 标记 -清除算法、复制算法、标记-压缩算法，**我们常用的垃圾回收器一般都采用分代收集算法**
-* 垃圾回收器
+### GC算法
+> * GC算法 标记-清除算法(Mark-Sweep)
+   * 标记和清除过程的效率都不高
+   * 标记清除之后会产生大量不连续的内存碎片，空间碎片太多可能会导致，当程序在以后的运行过程中需要分配较大对象时无法找到足够的连续内存而不得不提前触发另一次垃圾收集动作
+* <span id="GC copying" />复制算法(Copying)
+ * **可以规避内存碎片的问题，但缺点是内存的大小相当于原来的1/2**
+ * 将可用内存按容量划分为大小相等的两块，每次只使用其中的一块。当这一块的内存用完了，就将还存活着的对象复制到另外一块上面，然后再把已使用过的内存空间一次清理掉
+* 标记-压缩算法(Mark-Compact)
+ {% asset_img 22.png 标记完后让所有存活对象都往一端移动，再回收被标记对象 %}
+* **我们常用的垃圾回收器一般都采用分代收集算法(Generational Collection)**
+ * 把Java堆分为新生代和老年代，这样就可以根据各个年代的特点采用最适当的收集算法。
+ * 在新生代中，每次垃圾收集时都发现有大批对象死去，只有少量存活，那就选用复制算法，只需要付出少量存活对象的复制成本就可以完成收集。
+ * 老年代中因为对象存活率高、没有额外空间对它进行分配担保，就必须使用“标记-清理”或“标记-整理”算法来进行回收
+
+### 垃圾回收器
+> * Serial收集器(jvm client模式下默认收集器)
+   * 使用一个线程去回收
+   * 新生代复制算法、老年代标记-压缩；垃圾收集的过程中会Stop The World
+   * -XX:+UseSerialGC
+* Parallel Collector(根据Minor GC和Full GC分成以下三种)
+ * -XX:ParallelGCThreads可以指定线程数
+ * ParNew GC
+   * -XX:+UseParNewGC
+ * **Parallel GC**(jvm server模式下默认GC收集器)
+   * -XX:+UseParallelGC  
+ * ParallelOldGC
+* CMS Collector
+ * 触发规则是检查Old区和Perm区的使用率
+
 * [面向GC的JAVA编程](http://blog.hesey.net/2014/05/gc-oriented-java-programming.html)
 
-#### 如何判断对象是否存活
+### 如何判断对象是否存活
 > * 引用计数法，实现简单，判定高效，**无法解决对象相互循环引用的问题**
 * 可达性分析法
  * 从GC Roots开始向下搜索，搜索所走过的路径称为引用链。当一个对象到GC Roots没有任何引用链相连时，则证明此对象是不可用的。不可达对象
@@ -602,35 +650,29 @@ Selector不断轮询注册在上面的Channel，由于JDK使用了epoll函数代
 * [单例](https://stackoverflow.com/questions/8011138/servlet-seems-to-handle-multiple-concurrent-browser-requests-synchronously)
 
 ## 设计模式
-> * 适配器
-   * 实现一个接口类不想实现其所有方法，可以继承其抽象子类(适配器类\*\*adapter)只覆写想要覆写的方法
-   * [插线口标准实例](http://blog.csdn.net/zhangjg_blog/article/details/18735243)
-   ```java
+* 适配器
+ * 实现一个接口类不想实现其所有方法，可以继承其抽象子类(适配器类\*\*adapter)只覆写想要覆写的方法
+ * [插线口标准实例](http://blog.csdn.net/zhangjg_blog/article/details/18735243)
+ ```plain
    public class SocketAdapter    
         implements GermanSocketInterface {   //实现旧接口  
-  
        private ChineseSocketInterface gbSocket;  
-         
        public SocketAdapter(GBSocketInterface gbSocket) {  
            this.gbSocket = gbSocket;  
        }  
-         
        /** 
         * 将对旧接口的调用适配到新接口 
         */  
        @Override  
        public void powerWithTwoRound() {  
-             
            gbSocket.powerWithThreeFlat();  
        }  
-     
    }  
-   ```
-   
+ ```
 * 工厂
 * 装饰
 
-## linux commands 
+## linux and JVM commands 
 ### 系统类相关
 #### top
 #### iostat
@@ -657,6 +699,23 @@ Selector不断轮询注册在上面的Channel，由于JDK使用了epoll函数代
 * vmstat看swpd大于0且si so数值较大说明内存不够用，考虑加内存条，top进入监控后，可以按M按占用内存多少进行排序展示，P按cpu
 
 #### strace(mac用dtruss)
+
+### JVM相关
+> * [纯洁的微笑](http://www.ityouknow.com/java/2016/01/01/jvm%E8%B0%83%E4%BC%98-%E5%91%BD%E4%BB%A4%E7%AF%87.html)
+
+#### jstat
+> * jstat -gccapacity 1262 2000 20  监控pid为1262的程序每2秒输出一次输出20次
+* -gcutil可以输出占用百分比
+
+#### jmap
+> * jmap -dump:live,format=b,file=dump.hprof 28920
+* jmap -heap 28920      打印heap的概要信息，GC使用的算法，heap的配置及wise heap的使用情况
+
+#### jhat和MAT
+> * 分析用jmap dump下来的文件
+
+#### jstack
+> * [参考](http://www.hollischuang.com/archives/110)
 
 # 熟悉
 
@@ -752,7 +811,7 @@ Selector不断轮询注册在上面的Channel，由于JDK使用了epoll函数代
 > * [庄周梦蝶的文章](http://blog.fnil.net/blog/255ccfae971d6d30b0921120d327490b/)
 * [redis官方教程](http://redis.majunwei.com/topics/sentinel.html)
 
-```
+```plain
 sentinel monitor mymaster 127.0.0.1 6379 2
 sentinel down-after-milliseconds mymaster 60000
 sentinel failover-timeout mymaster 180000
@@ -840,6 +899,15 @@ sentinel parallel-syncs resque 5
 ##### 同步写slave
 
 ### 高可用
+> * [参考](https://www.percona.com/blog/2016/06/07/choosing-mysql-high-availability-solutions/?from=timeline&isappinstalled=0)
+* [老叶茶馆](http://imysql.com/2015/09/14/solutions-of-mysql-ha.shtml)
+* 基于主从复制
+ * 双节点主从 + keepalived/heartbeat
+ * MHA
+* 基于Galera协议
+ * MariaDB Galera Cluster
+ * Percona XtraDB Cluster
+
 
 ### sharding 和 partition
 > * Partitioning is a general term used to describe the act of breaking up your logical data elements into multiple entities
@@ -882,7 +950,7 @@ sentinel parallel-syncs resque 5
 ###### 关联表的冗余字段问题
 
 查询用户 1 关注的所有男性用户，并且以每页 20 条进行分页
-```
+```plain
 单库情况
 select * 
 from user u 
@@ -890,7 +958,7 @@ inner join follow f on f.follow_id = u.user_id
 where f.user_id = 1
 ```
 
-```
+```plain
 多库的情况
 ids = 
 select follow_id from follow where user_id = 1 limit 20;
@@ -981,7 +1049,7 @@ select * from user where id in (ids) amd sex = 1;
 * @EnableFeignClients：启用feign进行远程调用
 * feign调用
 
-```java
+```plain
     @FeignClient(name= "spring-cloud-producer")
     public interface HelloRemote {
         @RequestMapping(value = "/hello")
@@ -1067,7 +1135,7 @@ False Positive即误报，比方垃圾邮件、缓存服务器都是可以接受
 * [ref3](http://blog.csdn.net/hackbuteer1/article/details/7622869)
 * 局部淘汰法(对于数量巨大的情况，堆完全载入内存是没问题的)。维护一个K大小的数组，遍历后面N-K个元素，每次替换掉数组里的最小数，复杂度为**O(N\*K)**。如果把数组换成堆，则每次直接替换堆顶的元素再update堆，复杂度为**O(N\*log K)**
 * 最小堆的性质-每个节点均不大于其左右子节点，堆顶为最小元素
-``` java
+```plain
 public int findKthLargest(int[] nums, int k) {
   PriorityQueue<Integer> minQueue = new PriorityQueue<>(k);
   for (int num : nums) {
@@ -1245,7 +1313,7 @@ The access control includes
 * ngx_cache_purge
 
 # TODO
-> * linux指令(结合着jvm)
+> * linux指令 strace
 * 还需从头回顾的内容
  * jvm整体(周一晚，至迟周二完成)
   * jvm指令（jstat和GC相关、jmap和堆快照文件相关）
