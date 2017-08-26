@@ -1215,14 +1215,12 @@ The access control includes
 
 ## zookeeper
 ### 关键技术
-> 数据结构Znode + 原语 + watcher机制
-
-#### Znode
-> * 临时节点依赖于创建它们的session，但对所有客户端可见，不能有子节点
+> * 数据结构Znode + 原语 + watcher机制
+* 临时节点依赖于创建它们的session，但**对所有客户端可见，不能有子节点**
 * 客户端watch某个节点仅被触发一次
+* {% asset_img 25.png 传统解决单点的方案(keepalived)，如果出现网络问题没收到ack，会出现split-brain双主的问题 %}
+* {% asset_img 26.png 利用znode的临时属性解决split-brain问题，zookeeper在这里是一个仲裁者的角色 %}
 
-#### watch
-> * 分data watch和child watch
 
 ## 系统设计
 
@@ -1313,29 +1311,31 @@ The access control includes
 * ngx_cache_purge
 
 # TODO
-> * linux指令 strace
-* 还需从头回顾的内容
- * jvm整体(周一晚，至迟周二完成)
-  * jvm指令（jstat和GC相关、jmap和堆快照文件相关）
+> * 在公司做
+   * linux  strace tmux
+   * jvm整体
+   * jvm指令（jstat和GC相关、jmap和堆快照文件相关）
+   * 工厂模式
+* 周末处理
  * netty结构
-* 原理类准备
- * zookeeper
- * spring 
- * redis
- * mybatis
-* 工厂模式
-* 分布式还未覆盖的地方
- * 限流量
- * 服务降级
- * 消息系统
-   * 构建
-   * 分布式事务
-* 集合类
-* SpringMVC的分发过程 [来自](http://blog.csdn.net/u013256816/article/details/51787470)
-* SpringBean的加载过程
-* LVS和Nigix的区别及使用场景 
-* Javac的编译过程 
-* Java虚拟机结构分析
+ * 原理类准备
+   * zookeeper
+   * spring 
+   * redis
+   * mybatis
+ * 分布式还未覆盖的地方
+   * 限流量
+   * 服务降级
+   * 消息系统
+     * 构建
+     * 分布式事务
+ * 集合类
+ * SpringMVC的分发过程 [来自](http://blog.csdn.net/u013256816/article/details/51787470)
+ * SpringBean的加载过程
+ * LVS和Nigix的区别及使用场景 
+ * Javac的编译过程 
+ * Java虚拟机结构分析
+
 * 用脚本实现加实例不reload Nginx 结合consul 全局负载均衡
 * sharding回顾，读写分离
 * redis主备和同步机制
@@ -1346,6 +1346,7 @@ The access control includes
 
 # 项目准备
 > * 解决问题
+   * 架构 keepalived + tengine + service
    * 收益汇总，在数据库层汇总(悲观锁)而不是应用层
    * 注册流程的优化
 * 负责内容
