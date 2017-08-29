@@ -28,12 +28,16 @@ tags:
  * sleep、wait、join、LockSupport的parkNanos方法、LockSupport的parkUntil方法
 * TERMINATED
 
+
 ### 队列
+
 #### 阻塞队列
 ##### 代码实现
-> * 数组 + notify、wait方法
-   * [实现](http://tutorials.jenkov.com/java-concurrency/blocking-queues.html)
-   ```plain
+> * 用juc包里的类实现
+* 数组 + notify、wait方法
+* [实现](http://tutorials.jenkov.com/java-concurrency/blocking-queues.html)
+
+```plain
    public class BlockingQueue {
 
      private List queue = new LinkedList();
@@ -68,8 +72,11 @@ tags:
      }
    
    }
-   ```
-* 用juc包里的类实现
+  ```
+    
+
+
+
 
 ##### JDK提供
 > * ArrayBlockingQueue
@@ -101,7 +108,7 @@ tags:
 #### 处理流程
 ![线程池处理流程](http://ifeve.com/wp-content/uploads/2012/12/Java%E7%BA%BF%E7%A8%8B%E6%B1%A0%E4%B8%BB%E8%A6%81%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B.jpg)
 
-**线程池-->队列**-->扩容-->拒绝策略
+**核心线程池(corePoolSize)-->队列**-->扩容(maximumPoolSize)-->拒绝策略
 
 #### 配置线程池考虑什么
 > * 任务类型，IO还是CPU，还是混合型
@@ -721,6 +728,14 @@ Selector不断轮询注册在上面的Channel，由于JDK使用了epoll函数代
 
 ## 索引
 
+### 原理
+> * 目前大部分数据库系统及文件系统都采用B-Tree或其变种B+Tree作为索引结构
+* 索引本身也很大，不可能全部存储在内存中，因此索引往往以索引文件的形式存储的磁盘上。这样的话，索引查找过程中就要产生磁盘I/O消耗，相对于内存存取，I/O存取的消耗要高几个数量级，所以评价一个数据结构作为索引的优劣最重要的指标就是在查找过程中磁盘I/O操作次数的渐进复杂度。**换句话说，索引的结构组织要尽量减少查找过程中磁盘I/O的存取次数**
+* 局部性原理与磁盘预读
+ * 当一个数据被用到时，其附近的数据也通常会马上被使用
+ * 磁盘往往不是严格按需读取，而是每次都会预读，即使只需要一个字节，磁盘也会从这个位置开始，顺序向后读取一定长度的数据放入内存
+ * 红黑树或者二叉搜索树这种结构，由于逻辑上很近的节点（父子）物理上可能很远，无法利用局部性原理，适合实现HashMap这样在内存的数据结构
+
 ### 索引类型
 > * normal
 * unique
@@ -774,6 +789,30 @@ Selector不断轮询注册在上面的Channel，由于JDK使用了epoll函数代
 　　像memcached不支持hash结构，只能在应用层每次序列化和反序列化，不仅麻烦，而且对于一些并发的场景要另外加锁。
 #### Set
 　　利用Redis提供的Sets数据结构，可以存储一些集合性的数据，比如在微博应用中，可以将一个用户所有的关注人存在一个集合中，将其所有粉丝存在一个集合。Redis还为集合提供了求交集、并集、差集等操作，可以非常方便的实现如共同关注、共同喜好、二度好友等功能，对上面的所有集合操作，你还可以使用不同的命令选择将结果返回给客户端还是存集到一个新的集合中。
+
+### Redis的并发竞争问题如何解决
+**两种思路**
+> 
+* 数据库层面加锁
+```plain
+  WATCH mykey
+  val = GET mykey
+  val = val + 1
+  MULTI
+  SET mykey $val
+  EXEC
+```
+* 应用层层面加锁，**会有问题，类似RRD客户收益汇总**
+```plain
+  synchronized void businessMethod() {
+    val = get mykey
+    val = val + 1
+    set mykey val 
+  }
+```
+
+
+
 
 ### Memcached和Redis的区别
 > * 数据类型，Memcached只支持字符串
@@ -997,6 +1036,35 @@ select * from user where id in (ids) amd sex = 1;
 * Many organizations use the Master/Slave approach for high-availability as well, but it suffers from this same limitation given that the Slave servers are not necessarily current with the Master. If a catastrophic failure of the Master server occurs, any transactions that are pending for replication will be lost, a situation that is highly unacceptable for most business transaction applications
 
 ## 服务高可用
+
+## 分布式一致性算法
+
+**分布式一致算法需要考虑场景。**
+> * 一般计算机系统做状态管理或者多副本，假设是系统组件的行为不是任意的，通俗的说，你可以宕机可以断网可以延时，但是不能撒谎。这种场景下主要是Paxos及其变种，Raft经常被单拿出来是因为它的形式相对更容易理解。从软件角度说，etcd, zookeeper(**Zab**)，都是采用此类一致性算法。
+
+## CAP
+### 概念
+> * [参考](http://www.hollischuang.com/archives/666)
+* Consistency
+   * all nodes see the same data at the same time
+   * 从客户端来看，一致性主要指的是多并发访问时更新过的数据如何获取的问题
+   * 从服务端来看，则是更新如何复制分布到整个系统，以保证数据最终一致
+* Availability
+ * Reads and writes always succeed  **服务一直可用，而且是正常响应时间**
+ * 对于一个可用性的分布式系统，每一个非故障的节点必须对每一个请求作出响应
+* Partition Tolerance分区容错性 the system continues to operate despite arbitrary message loss or failure of part of the system
+
+### 场景理解
+{% asset_img 27.png %}
+> **假设在N1和N2之间网络断开的时候，有用户向N1发送数据更新请求，那N1中的数据V0将被更新为V1，由于网络是断开的，所以分布式系统同步操作M，所以N2中的数据依旧是V0；这个时候，有用户向N2发送数据读取请求，由于数据还没有进行同步，应用程序没办法立即给用户返回最新的数据V1，怎么办呢？有二种选择，第一，牺牲数据一致性，响应旧的数据V0给用户；第二，牺牲可用性，阻塞等待，直到网络连接恢复，数据更新操作M完成之后，再给用户响应最新的数据V1。**
+
+
+### 实际
+> * CA without P：如果不要求P（不允许分区），则C（强一致性）和A（可用性）是可以保证的。但其实分区不是你想不想的问题，而是始终会存在，因此CA的系统更多的是允许分区后各子系统依然保持CA
+* CP without A：如果不要求A（可用），相当于每个请求都需要在Server之间强一致，而P（分区）会导致同步时间无限延长，如此CP也是可以保证的。很多传统的数据库分布式事务都属于这种模式
+* AP wihtout C：要高可用并允许分区，则需放弃一致性。一旦分区发生，节点之间可能会失去联系，为了高可用，每个节点只能用本地数据提供服务，而这样会导致全局数据的不一致性。现在众多的NoSQL都属于此类
+
+
 
 ## 分布式事务
 ### 转账的例子
@@ -1222,6 +1290,9 @@ The access control includes
 * {% asset_img 26.png 利用znode的临时属性解决split-brain问题，zookeeper在这里是一个仲裁者的角色 %}
 
 
+## keepalived
+> * 基于ARRP协议
+
 ## 系统设计
 
 <span id="seize business" />
@@ -1296,7 +1367,6 @@ The access control includes
 ## 深圳meituan
 > * 一个小商店，客户去买东西，表设计，怎么取到用户的手机号存进用户表
 
-
 ## 其他
 ### 抢红包业务设计 [跳转](#seize business)
 ### 编码实现死锁
@@ -1311,7 +1381,8 @@ The access control includes
 * ngx_cache_purge
 
 # TODO
-> * 在公司做
+> * 归纳准备的算法题(BFS DFS DP)
+* 在公司做
    * linux  strace tmux
    * jvm整体
    * jvm指令（jstat和GC相关、jmap和堆快照文件相关）
@@ -1322,13 +1393,8 @@ The access control includes
    * zookeeper
    * spring 
    * redis
+   * 索引
    * mybatis
- * 分布式还未覆盖的地方
-   * 限流量
-   * 服务降级
-   * 消息系统
-     * 构建
-     * 分布式事务
  * 集合类
  * SpringMVC的分发过程 [来自](http://blog.csdn.net/u013256816/article/details/51787470)
  * SpringBean的加载过程
