@@ -393,7 +393,20 @@
 </blockquote>
 <h2 id="模块"><a href="#模块" class="headerlink" title="模块"></a>模块</h2><h3 id="关于shiro"><a href="#关于shiro" class="headerlink" title="关于shiro"></a>关于shiro</h3><p>　　<a href="https://shiro.apache.org/" target="_blank" rel="external">官网</a>，java的一个权限框架。可以做粒度很细的权限，比方你要使用3号打印机，可以用这样的形式<strong>printer:query:3</strong>来表达这个资源，printer是model，query是action，就是传统的增删改查的动作，3是这个model的主键。在java里可以用这样的注解来做权限校验@RequiresPermissions(“printer:query:3”)。<br>　　这是最细的情况，比方printer:*则可以表示这个用户对所有打印机有所有的增删改查的权限，printer:query:*可以表达用户对所有的打印机有读的权限<br>　　好吧就说到这吧</p>
 <h3 id="在java后端模拟shiro权限校验，供openResty调用"><a href="#在java后端模拟shiro权限校验，供openResty调用" class="headerlink" title="在java后端模拟shiro权限校验，供openResty调用"></a>在java后端模拟shiro权限校验，供openResty调用</h3><p>　　由于lua写解析太复杂了，相当于要自己写一个解析的工具类，处理比方拥有这个printer:*这个权限是包含了printer:query:3这个权限这样的功能，本着不重复造轮子的原则，我在本地搭了个服务供openresty直接调用，接收两个数组，一个是请求的权限的集合，一个是用户已有权限的集合，利用shiro的<a href="https://shiro.apache.org/static/1.2.3/apidocs/org/apache/shiro/authz/permission/WildcardPermission.html" target="_blank" rel="external">WildcardPermission</a>类进行处理<br>　　一小段java代码，<strong>implies</strong>方法就是这个解析的过程<br>　　用伪码表达的话，如果权限1包含权限2，则 权限1.implies(权限2) 会返回true</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isPermitted</span><span class="params">(WildcardPermission[] reqs, WildcardPermission[] hasPers)</span> </span>&#123;</div><div class="line">  <span class="keyword">boolean</span> flag = <span class="keyword">true</span>;</div><div class="line">  <span class="keyword">for</span> (WildcardPermission req : reqs) &#123;</div><div class="line">    flag = <span class="keyword">false</span>;</div><div class="line">    <span class="keyword">for</span> (WildcardPermission hasPer : hasPers) &#123;</div><div class="line">      <span class="keyword">if</span> (hasPer.implies(req)) &#123;</div><div class="line">      	flag = <span class="keyword">true</span>;</div><div class="line">      	<span class="keyword">break</span> ;</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">return</span> flag;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<pre><code class="java">public boolean isPermitted(WildcardPermission[] reqs, WildcardPermission[] hasPers) {
+  boolean flag = true;
+  for (WildcardPermission req : reqs) {
+    flag = false;
+    for (WildcardPermission hasPer : hasPers) {
+      if (hasPer.implies(req)) {
+          flag = true;
+          break ;
+      }
+    }
+  }
+  return flag;
+}
+</code></pre>
 <p>　　涉及ngx.location.capture去调本地的服务</p>
 <h3 id="redis取权限，取不到则读mysql"><a href="#redis取权限，取不到则读mysql" class="headerlink" title="redis取权限，取不到则读mysql"></a>redis取权限，取不到则读mysql</h3><blockquote>
 <ul>
@@ -402,8 +415,10 @@
 </ul>
 </blockquote>
 <h3 id="关于openResty-lua-项目的文件组织和请求路由的问题"><a href="#关于openResty-lua-项目的文件组织和请求路由的问题" class="headerlink" title="关于openResty+lua 项目的文件组织和请求路由的问题"></a>关于openResty+lua 项目的文件组织和请求路由的问题</h3><p>　　这个问题有两种处理，我在openResty china里发过<strong><a href="https://orchina.org/topic/133/view" target="_blank" rel="external">提问帖</a></strong></p>
-<h4 id="在location里通过url分发类似这样"><a href="#在location里通过url分发类似这样" class="headerlink" title="在location里通过url分发类似这样"></a>在location里通过url分发类似这样</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">location ~ &apos;^/([a-z]+)/(update|create|delete|query)/?(\d*)$&apos; &#123;</div><div class="line">  content_by_lua_file &quot;lua/$1.lua&quot;;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>如果用访问地址”localhost:6699/user/query/33”，会被lua/user.lua这个文件处理，可以在这个文件里再去细化业务</p>
+<h4 id="在location里通过url分发类似这样"><a href="#在location里通过url分发类似这样" class="headerlink" title="在location里通过url分发类似这样"></a>在location里通过url分发类似这样</h4><pre><code>    location ~ &#39;^/([a-z]+)/(update|create|delete|query)/?(\d*)$&#39; {
+      content_by_lua_file &quot;lua/$1.lua&quot;;
+    }
+</code></pre><p>如果用访问地址”localhost:6699/user/query/33”，会被lua/user.lua这个文件处理，可以在这个文件里再去细化业务</p>
 <h4 id="另一种是请求分发直接在一个lua文件里做"><a href="#另一种是请求分发直接在一个lua文件里做" class="headerlink" title="另一种是请求分发直接在一个lua文件里做"></a>另一种是请求分发直接在一个lua文件里做</h4><p>　　使用了<a href="https://github.com/bungle/lua-resty-route" target="_blank" rel="external">lua-resty-route</a>这个组件做请求路由分发到不同的业务类做处理</p>
 <blockquote>
 <p>路由请求这个功能不算是权限系统里的部分，但由于自己是openResty新手，没做过实际项目，而路由分发这种肯定是每个项目的基础功能必不可少，所以算作是打个基础</p>
@@ -489,25 +504,6 @@
 
 
     <div class="post-spread">
-      
-        <div class="ds-share flat" data-thread-key="2017/05/13/基于openResty-lua的权限校验/"
-     data-title="基于openResty+lua的权限校验"
-     data-content=""
-     data-url="http://yoursite.com/2017/05/13/基于openResty-lua的权限校验/">
-  <div class="ds-share-inline">
-    <ul  class="ds-share-icons-16">
-
-      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
-      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
-      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
-      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
-      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
-
-    </ul>
-    <div class="ds-share-icons-more">
-    </div>
-  </div>
-</div>
       
     </div>
   </div>
