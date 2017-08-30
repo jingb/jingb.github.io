@@ -695,11 +695,15 @@ Selector不断轮询注册在上面的Channel，由于JDK使用了epoll函数代
 
 #### vmstat(mac用vm_stat)
 > * [英文资料有示例](https://www.thomas-krenn.com/en/wiki/Linux_Performance_Measurements_using_vmstat#CPU_User_Load_Example)
-   * CPU User Load 用户进程执行cpu密集的任务，比方A standard audio file will be encode as an MP3 file，cpu相关列的us很高
-   * CPU System Load 比方dd if=/dev/urandom of=500MBfile bs=1M count=500这个指令，生成随机数往文件里写，cpu相关列的sy很高
-   * RAM Bottleneck (swapping) 内存不足，so(swap out - memory swapped to disk)会很高
-   * High IO Read Load  A large file (such as an ISO file) will be read and written to /dev/null using dd
-   * High IO Write Load  dd will read from /dev/zero and write a file. 
+   * cpu intensive 
+    * CPU User Load 用户进程执行cpu密集的任务，比方A standard audio file will be encode as an MP3 file，cpu相关列的us很高
+    * CPU System Load 比方dd if=/dev/urandom of=500MBfile bs=1M count=500这个指令，生成随机数往文件里写，cpu相关列的sy很高
+   * 缺内存
+    * RAM Bottleneck (swapping) 内存不足，so(swap out - memory swapped to disk)会很高
+   * IO intensive
+    * High IO Read Load  A large file (such as an ISO file) will be read and written to /dev/null using dd
+    * High IO Write Load  dd will read from /dev/zero and write a file. 
+
    * CPU Waiting for IO (见参考) 
 * [实际机子情况分析](https://serverfault.com/questions/54546/how-would-you-interpret-the-following-vmstat-output)
 * [参考](http://www.cnblogs.com/ggjucheng/archive/2012/01/05/2312625.html) 
@@ -1133,10 +1137,17 @@ select * from user where id in (ids) amd sex = 1;
 {% asset_img 11.png %}
 
 ### HTTP动态负载均衡
-> * Consul + Consul-template实现动态负载均衡，缺点是每次每次配置变化(upstream 服务加入、退出)都会由系统自动执行nginx的reload功能，有一定的损耗
+* [参考](http://xiaorui.cc/2016/10/16/nginx%E5%8A%A8%E6%80%81%E9%85%8D%E7%BD%AE%E5%8F%8A%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0%E9%82%A3%E4%BA%9B%E4%BA%8B/)
+* dns动态解析，非常适合依赖域名来辨识主机的集群服务，多用在类aws、阿里云这样的云服务
+* 模板渲染
+* 服务发现动态配置重载.   
+
+
+> * Consul + Consul-template(每次去Consul拉数据往模板里填)实现动态负载均衡(增加减少实例不用手动改nginx.conf的upstream)，缺点是每次每次配置变化(upstream 服务加入、退出)都会由系统自动执行nginx的reload功能，有一定的损耗
+ * {% asset_img 29.png %}
 * 不reload就实现动态变更upstream
  * tengine的dyups模块
- * 微博的upsync
+ * 微博的[upsync](https://github.com/weibocom/nginx-upsync-module)
  * openResty的balancer_by_lua
 
 ## 分布式环境下session的处理
@@ -1227,7 +1238,8 @@ public int findKthLargest(int[] nums, int k) {
 > * [网上文章](https://my.oschina.net/kiwivip/blog/133498)
 * 应用场景，HTTP缓存服务器、web爬虫、垃圾邮件过滤……
 
-<span id="dynamic proxy"></span>
+<span id="dynamic proxy" />
+
 ## 代理
 ### why 
 >　　the **main intent of a proxy is to** control access to the target object, **rather than to** enhance the functionality of the target object. 
@@ -1292,6 +1304,8 @@ The access control includes
 
 ## keepalived
 > * 基于ARRP协议
+
+{% asset_img 28.gif %}
 
 ## 系统设计
 
@@ -1381,7 +1395,7 @@ The access control includes
 * ngx_cache_purge
 
 # TODO
-> * 归纳准备的算法题(BFS DFS DP)
+> * 归纳准备的算法题(BFS DFS Greedy Backtracking DP 分治)
 * 在公司做
    * linux  strace tmux
    * jvm整体
@@ -1394,6 +1408,7 @@ The access control includes
    * spring 
    * redis
    * 索引
+   * keepalived
    * mybatis
  * 集合类
  * SpringMVC的分发过程 [来自](http://blog.csdn.net/u013256816/article/details/51787470)
