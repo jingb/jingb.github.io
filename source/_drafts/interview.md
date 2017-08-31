@@ -18,10 +18,12 @@ tags:
 ### 线程
 #### 线程状态
 > * [文章](https://fangjian0423.github.io/2016/06/04/java-thread-state/)
+* java.lang.Thread.State 枚举类
 * NEW
  * Thread t = new Thread()
 * RUNNABLE
 * BLOCKED
+ * synchronized
 * WAITING
  * 执行了wait方法没带时间参数、join方法没带时间参数或者LockSupport.pack方法
 * TIMED_WAITING
@@ -36,6 +38,7 @@ tags:
 > * 用juc包里的类实现
 * 数组 + notify、wait方法
 * [实现](http://tutorials.jenkov.com/java-concurrency/blocking-queues.html)
+以enqueue发放举例需要注意 **(1)synchronized关键字 (2)调用wait的条件 (3)队列为空时，说明之前可能有其他线程堵塞在dequeue方法，要唤醒他们**
 
 ```plain
    public class BlockingQueue {
@@ -46,13 +49,14 @@ tags:
      public BlockingQueue(int limit){
        this.limit = limit;
      }
-   
+     
+     
      public synchronized void enqueue(Object item) throws InterruptedException  {
        while(this.queue.size() == this.limit) {
          wait();
        }
        if(this.queue.size() == 0) {
-         //唤醒那些堵塞在dequeue方法的线程
+         //**唤醒那些堵塞在dequeue方法的线程**
          notifyAll();
        }
        this.queue.add(item);
@@ -85,7 +89,7 @@ tags:
 * DelayQueue(无界)
 
 #### 非阻塞队列
-> * ConcurrentLinkedQueue
+> * ConcurrentLinkedQueue(无界)
 
 
 ## 线程池 
@@ -344,6 +348,9 @@ Selector不断轮询注册在上面的Channel，由于JDK使用了epoll函数代
 
 ## 集合类
 ### HashMap
+#### 为什么需要这种结构
+> 数组访问快插入慢，链表插入快访问慢，HashMap这样的结构取得了插入、访问速度的均衡
+
 #### 实现
 > * 是个数组，但数组的每个节点是个链表
 * java8中，如果某个节点的链长度超过8，会用红黑树来替代数组，处理的是由于hashCode太多冲突造成的链太长而导致的查询蜕化问题。另外，get(key)发现冲突，需要用key.equals(k)去查找对应的entry
@@ -355,7 +362,7 @@ Selector不断轮询注册在上面的Channel，由于JDK使用了epoll函数代
 
 #### 为什么要二次hash
 ##### 过程 
-> HashMap的key hash计算时先计算hashCode(),然后进行二次hash
+> HashMap的key hash值计算时先计算hashCode(),然后进行二次hash
 
 ##### 为什么
 > * 由于Key的哈希值的分布直接决定了所有数据在哈希表上的分布或者说决定了哈希冲突的可能性，因此为防止糟糕的Key的hashCode实现（例如低位都相同，只有高位不相同，与2^N-1取与后的结果都相同）
@@ -377,17 +384,31 @@ Selector不断轮询注册在上面的Channel，由于JDK使用了epoll函数代
 * prototype，Spring does not manage the complete lifecycle of a prototype bean
 * [代码示例](http://memorynotfound.com/spring-bean-scopes-singleton-vs-prototype/)
 
+```palin
+  ApplicationContext context …… 
+  
+  Coffee coffee = context.getBean(Coffee.class);
+  coffee.setBrand("Java");
+  System.out.println("Coffee brand: " + coffee.getBrand());
+  
+  coffee = context.getBean(Coffee.class);
+  System.out.println("Coffee brand: " + coffee.getBrand());
+
+  singleton两次都输出 Java
+  prototype第二个输出是null
+```
+
 ### BeanFactory和ApplicationContext的区别
 > * [参考文章](http://www.cnblogs.com/heyongjun1997/p/5944674.html)
 * 两者都是通过xml配置文件加载bean, ApplicationContext和BeanFacotry相比, 提供了更多的扩展功能
-* BeanFactory是延迟加载,如果Bean的某一个属性没有注入，BeanFacotry加载后，直至第一次使用调用getBean方法才会抛出异常；而ApplicationContext则在初始化自身是检验，这样有利于检查所依赖属性是否注入
+* BeanFactory是延迟加载,如果Bean的某一个属性没有注入，BeanFacotry加载后，直至第一次使用调用getBean方法才会抛出异常；**而ApplicationContext则在初始化自身是检验，这样有利于检查所依赖属性是否注入**
 
 ### Spring Bean provide thread safety?
 >　　The default scope of Spring bean is singleton, so there will be only one instance per context. That means that all the having a class level variable that any thread can update will lead to inconsistent data. Hence in default mode spring beans are **not thread-safe**. However we can change spring bean scope to request, prototype or session to achieve thread-safety **at the cost of performance**. It’s a design decision and based on the project requirements.
 
 ### AOP 
 > * [原理](http://www.cnblogs.com/zs234/p/3267623.html)
-* aop可以由AspectJ这样的框架实现，在编译时对目标类进行增强
+* aop可以由AspectJ(静态代理)这样的框架实现，在**编译时对目标类进行增强**。而Aspect这样的框架，解决的是静态代理要覆写**被代理类所实现接口的所有方法**这样重复性的问题，性能相对来说比较好，但实现也复杂
 * 动态代理的实现是运行时增强
 * [跳转至动态代理](#dynamic proxy)
 
@@ -414,47 +435,24 @@ Selector不断轮询注册在上面的Channel，由于JDK使用了epoll函数代
 * 数据一致性问题，只能保证最终一致性，而不是实时的一致性
 
 ## JVM
+{% asset_img 2.png JVM整体架构，在Sun JDK中，本地方法栈和Java栈是同一个%}
+> 三大部分
+* Runtime Data Area
+* Class Loader
+* 执行引擎(Execution Engine)以及与本地方法接口(Native Interface)
+ * JVM执行Java字节码的核心
 
-### 参数
-> * [江南白衣](http://calvin1978.blogcn.com/articles/jvmoption-2.html)
-* [网络文章](http://www.cnblogs.com/redcreen/archive/2011/05/04/2037057.html)
-
-#### GC参数
-> * -XX:+PrintGCDetails 
-* -Xloggc:logs/gc.log
-* JVM退出一般会在工作目录下产生一个日志文件，可以通过参数设定，-XX:ErrorFile=/tmp/log/hs\_error\_%p.log
-
-#### heap相关参数
-> * -Xms20M heap最小 
-* -Xmx20M heap最大 
-* -Xmn20M 年轻代大小(1.4or lator) （eden+ 2 survivor space)
-* -XX:+HeapDumpOnOutOfMemoryError 可以在内存耗尽时记录下内存快照 -XX:HeapDumpPath可以指定文件路径
-
-### jvm内存结构
-{% asset_img 2.png 在Sun JDK中，本地方法栈和Java栈是同一个%}
+### jvm Runtime Data Area
 
 {% asset_img 20.png 注意heap区的划分，survivor分成from和to是因为young区采用复制的GC算法 %}
 
-<span id="Class Loader" />
-#### Class Loader
-> 分类
-* BootStrap Class Loader 负责加载rt.jar文件中所有的Java类，即Java的核心类都是由该ClassLoader加载
-* Extension Class Loader 负责加载一些扩展功能的jar包
-* System Class Loader 负责加载启动参数中指定的Classpath中的jar包及目录，通常我们自己写的Java类也是由该ClassLoader加载
-* User Defined Class Loader
-
-> 工作过程
-* 装载 将Java二进制代码导入jvm中，生成Class文件
-* 链接 a）校验：检查载入Class文件数据的正确性 b）准备：给类的静态变量分配存储空间 c）解析：将符号引用转成直接引用 
-* 初始化 对类的静态变量，静态方法和静态代码块执行初始化工作
-
-##### 双亲委派模型(Parents Delegation Model)
-> * **双亲委派模型要求除了顶层的启动类加载器之外，其余的类加载器都应当有自己的父类加载器**
-* [双亲委派机制是为了安全而设计的](http://www.cnblogs.com/lanxuezaipiao/p/4138511.html)，如果一个类加载器收到了类加载的请求，它首先不会自己去尝试加载这个类，而是把这个请求委派给父类加载器去完成，每一个层次的类加载器都是如此，因此所有的加载请求最终都应该传送到顶层的启动类加载器中，只有当父加载器反馈自己无法完全这个加载请求时，子加载器才会尝试自己去加载
-{% asset_img 9.png %}
 
 #### Java Stack
+> Java栈由栈帧组成，一个帧对应一个方法调用。调用方法时压入栈帧，方法返回时弹出栈帧并抛弃。Java栈的主要任务是存储方法参数、局部变量、中间运算结果，并且提供部分其它模块工作需要的数据
+
 #### Method Area(也叫Permanent Generation)
+> * 类型信息(类名、父类名、访问修饰符……)和类的静态变量都存储在方法区中
+* 在Sun JDK中，方法区对应了持久代（Permanent Generation）
 
 #### Heap
 > * Java堆是被所有线程共享的一块内存区域，主要用于存放对象实例
@@ -468,17 +466,11 @@ Selector不断轮询注册在上面的Channel，由于JDK使用了epoll函数代
 * Survivor 区的对象每熬过一次 Minor GC，就将对象的年龄 + 1，当对象的年龄达到某个值时( -XX:MaxTenuringThreshold 来设定 )
 
 
-
-
 #### java内存分配策略
 > * 局部变量、形参都是从栈中分配空间
 * **栈分配空间时，如为一个即将要调用的程序模块分配数据区时，应该事先知道这个数据区的大小。也就是说虽然分配是在程序运行时进行的，但是分配的大小是确定的、不变的，而这个大小是在编译期决定的而不是运行时**
 * 堆在应用程序运行时请求操作系统给自己分配内存，由于操作系统管理内存分配，所以效率较栈要低。但优点在于编译器不需要知道从堆那里分配多少存储空间，也不必知道存储的数据要在堆里停留多长的时间，有更大的灵活性
 * 像多态这样的机制，所需的存储空间只有在运行时创建了对象之后才能确定，必须是堆内存的分配
-
-### 类的加载机制
-[跳转](#Class Loader)
-
 
 ### GC算法
 > * GC算法 标记-清除算法(Mark-Sweep)
@@ -537,6 +529,39 @@ Selector不断轮询注册在上面的Channel，由于JDK使用了epoll函数代
 44992K（堆区垃圾回收前的大小）->8702K（堆区垃圾回收后的大小）(252608K)（堆区总大小）, 0.0137904 secs（回收时间）] 
 [Times: user=0.03（Young GC用户耗时） sys=0.00（Young GC系统耗时）, real=0.02 secs（Young GC实际耗时）]  
 
+### 参数
+> * [江南白衣](http://calvin1978.blogcn.com/articles/jvmoption-2.html)
+* [网络文章](http://www.cnblogs.com/redcreen/archive/2011/05/04/2037057.html)
+
+#### GC参数
+> * -XX:+PrintGCDetails 
+* -Xloggc:logs/gc.log
+* JVM退出一般会在工作目录下产生一个日志文件，可以通过参数设定，-XX:ErrorFile=/tmp/log/hs\_error\_%p.log
+
+#### heap相关参数
+> * -Xms20M heap最小 
+* -Xmx20M heap最大 
+* -Xmn20M 年轻代大小(1.4or lator) （eden+ 2 survivor space)
+* -XX:+HeapDumpOnOutOfMemoryError 可以在内存耗尽时记录下内存快照 -XX:HeapDumpPath可以指定文件路径
+
+<span id="Class Loader" />
+### Class Loader
+> 分类
+* BootStrap Class Loader 负责加载rt.jar文件中所有的Java类，即Java的核心类都是由该ClassLoader加载
+* Extension Class Loader 负责加载一些扩展功能的jar包
+* System Class Loader 负责加载启动参数中指定的Classpath中的jar包及目录，通常我们自己写的Java类也是由该ClassLoader加载
+* User Defined Class Loader
+
+> 工作过程
+* 装载 将Java二进制代码导入jvm中，生成Class文件
+* 链接 a）校验：检查载入Class文件数据的正确性 b）准备：给类的静态变量分配存储空间 c）解析：将符号引用转成直接引用 
+* 初始化 对类的静态变量，静态方法和静态代码块执行初始化工作
+
+#### 双亲委派模型(Parents Delegation Model)
+> * **双亲委派模型要求除了顶层的启动类加载器之外，其余的类加载器都应当有自己的父类加载器**
+* [双亲委派机制是为了安全而设计的](http://www.cnblogs.com/lanxuezaipiao/p/4138511.html)，如果一个类加载器收到了类加载的请求，它首先不会自己去尝试加载这个类，而是把这个请求委派给父类加载器去完成，每一个层次的类加载器都是如此，因此所有的加载请求最终都应该传送到顶层的启动类加载器中，只有当父加载器反馈自己无法完全这个加载请求时，子加载器才会尝试自己去加载
+{% asset_img 9.png %}
+
 
 ## JMM(java memory model)
 > * [jenkov](http://tutorials.jenkov.com/java-concurrency/java-memory-model.html)
@@ -555,8 +580,8 @@ Selector不断轮询注册在上面的Channel，由于JDK使用了epoll函数代
 > 假设**机子是双核，线程1在核1运行，而线程2在核2运行**，如果线程1读线程2的变量，是读的核1里的cache区的数据（**此值是从main memory拷贝而来**），非volatile变量不保证何时在本核的cache和main memory之间同步变量的值
 
 #### 保证了两件事情
-> * 被修饰的变量存于main memory，而不是CPU cache，避免编译器优化带来的问题(比方instructions reordered)
-* 线程1写了volatile变量X，线程2可以读到最新的值，同时**线程1在此(写X)之前对其他非volatile变量的写操作比方有非volatile变量Y，也会被写回到main memory中，即线程2只要做了读X的动作，读到的Y也是最新的Y** (有点像一些数据库中间件，线程对主库做了写操作，则后续的读操作会被强制路由到主库，而不是从库，因为有可能因为主从复制延时的问题读不到最新值)
+> * 被修饰的变量存于main memory(可见性问题)，而不是CPU cache，避免编译器优化带来的问题(比方instructions reordered，有序性问题)
+* 假设线程1和线程2共享了对象O，线程1写了O对象的volatile变量X，线程2可以读到最新的值，同时**线程1在此(写X)之前对O对象其他非volatile变量的写操作比方有非volatile变量Y，也会被写回到main memory中，即线程2只要做了读X的动作，读到的Y也是最新的Y** (有点像一些数据库中间件，线程对主库做了写操作，则后续的读操作会被强制路由到主库，而不是从库，因为有可能因为主从复制延时的问题读不到最新值)
 
 #### 适用场景
 > * **对变量的写操作不依赖于当前值**，i++这种就不行
@@ -585,7 +610,7 @@ Selector不断轮询注册在上面的Channel，由于JDK使用了epoll函数代
 #### ReentrantLock
 
 #### ReadWriteLock
-> * 读写锁的理念是，只要没有任何线程写入变量，并发读取可变变量通常是安全的。所以读锁可以同时被多个线程持有，只要没有线程持有写锁。
+> * 读写锁的理念是，只要没有任何线程写入变量，并发读取可变变量通常是安全的。所以**读锁可以同时被多个线程持有，只要没有线程持有写锁**。
 * 如果读锁先被T1获取了，则T2要获取写锁也要等
 * 如果写锁先被T1获取了，同时T2，T3要获取读锁，则T1释放写锁之后T2，T3可以同时获取读锁
 
@@ -1243,12 +1268,14 @@ public int findKthLargest(int[] nums, int k) {
 ## 代理
 ### why 
 >　　the **main intent of a proxy is to** control access to the target object, **rather than to** enhance the functionality of the target object. 
+实现InvocationHandler接口
 The access control includes 
 * synchronization 
 * authentication
 * remote access (RPC)
 * lazy instantiation (Hibernate, Mybatis) 
 * AOP (transaction)
+
 
 ### 代理模式和装饰者模式区别
 >　　The difference between the Proxy Pattern and the DecoratorPattern is one of intent: Proxy provides access control, while Decorator adds functionality
@@ -1395,7 +1422,8 @@ The access control includes
 * ngx_cache_purge
 
 # TODO
-> * 归纳准备的算法题(BFS DFS Greedy Backtracking DP 分治)
+> * prepare看到适配器模式卡住，再回顾顺便画UML图
+* 归纳准备的算法题(BFS DFS Greedy Backtracking DP 分治)
 * 在公司做
    * linux  strace tmux
    * jvm整体
@@ -1404,10 +1432,11 @@ The access control includes
 * 周末处理
  * netty结构
  * 原理类准备
-   * zookeeper
-   * spring 
-   * redis
+   * zookeeper(paxos算法)
+   * spring(aop ioc) 
+   * redis(单线程模型)
    * 索引
+   * servlet
    * keepalived
    * mybatis
  * 集合类
