@@ -473,6 +473,12 @@ Selector不断轮询注册在上面的Channel，由于JDK使用了epoll函数代
 * 像多态这样的机制，所需的存储空间只有在运行时创建了对象之后才能确定，必须是堆内存的分配
 
 ### GC算法
+> 
+* Eden满了Minor gc，升到老年代的对象大于老年代剩余空间Major GC
+ * 发生Minor GC之前，虚拟机会先检查Old区最大可用的连续空间是否大于young区所有对象的总空间。如果大于则进行Minor GC，如果小于则看HandlePromotionFailure设置是否允许担保失败（不允许则直接Full GC）。如果允许，那么会继续检查Old区最大可用的连续空间是否大于历次晋升到Old区对象的平均大小，如果大于则尝试Minor GC（如果尝试失败也会触发Full GC），如果小于则进行Full GC。  
+* Major GC是清理老年代，Full GC是清理整个堆空间—包括年轻代和老年代
+* [面试可能问](http://icyfenix.iteye.com/blog/715301)
+
 > * GC算法 标记-清除算法(Mark-Sweep)
    * 标记和清除过程的效率都不高
    * 标记清除之后会产生大量不连续的内存碎片，空间碎片太多可能会导致，当程序在以后的运行过程中需要分配较大对象时无法找到足够的连续内存而不得不提前触发另一次垃圾收集动作
@@ -683,6 +689,8 @@ Selector不断轮询注册在上面的Channel，由于JDK使用了epoll函数代
 
 ## 设计模式
 * 适配器
+ * 系统中有旧类可以实现功能，但客户端的接口和旧类的接口不匹配，需要一个中间链接角色来适配，达到复用旧类的目的
+ * {% asset_img 30.png %}
  * 实现一个接口类不想实现其所有方法，可以继承其抽象子类(适配器类\*\*adapter)只覆写想要覆写的方法
  * [插线口标准实例](http://blog.csdn.net/zhangjg_blog/article/details/18735243)
  ```plain
@@ -954,17 +962,12 @@ sentinel parallel-syncs resque 5
 [见文](http://www.scienjus.com/database-sharding-review/)
 
 ### replication
-#### 实现细节
-##### binary log
-
-#### 方式
-##### one-way, asynchronous replication
-> * M给S写数据，一旦网络延迟或中断，则Slave和Master就会出现数据不一致；甚至如果此时Master宕机，会导致未发送到slave的数据丢失
-
-#####  semisynchronous replication
-> * 和同步相比即故障恢复时间较长
-
-##### 同步写slave
+> 
+* 基于binary log
+* 方式
+  * one-way, asynchronous replication M给S写数据，一旦网络延迟或中断，则Slave和Master就会出现数据不一致；甚至如果此时Master宕机，会导致未发送到slave的数据丢失
+  * semisynchronous replication
+  *  同步写slave
 
 ### 高可用
 > * [参考](https://www.percona.com/blog/2016/06/07/choosing-mysql-high-availability-solutions/?from=timeline&isappinstalled=0)
@@ -997,9 +1000,7 @@ sentinel parallel-syncs resque 5
 * 解决这个问题的思路还是分布式数据库的一贯原则，让SQL执行在单库上完成，实际采用的方式就是用“空间换效率”的方案，也就是将同一份数据表，冗余存储多份，按照不同的业务使用场景进行拆分，保持拆分维度和使用维度统一，而多份数据之间会实时数据复制以解决数据一致性问题，这就是“异构索引”方案。
 
 #### 维度
-##### 垂直
-##### 水平
-###### 水平分表和分片(sharding)
+##### 水平分表和分片(sharding)
 > * 参考
    * [聚合](http://www.cnblogs.com/maanshancss/p/5327803.html)
    * [黄钧航](http://blog.csdn.net/qingrx/article/details/8756839)
@@ -1007,7 +1008,7 @@ sentinel parallel-syncs resque 5
   * 水平分表只能在单台机子上的单个数据库进行，如果服务器本身的性能以及达到瓶颈，则分表不会有帮助
   * 水平分库后多个库可以部署在不同机子上，充分利用多台服务器的性能
 
-###### 水平分片的sharding key
+##### 水平分片的sharding key
 > * Sharding扩容与系统采用的路由规则密切相关：基于散列的路由能均匀地分布数据，但却需要数据迁移，同时也无法避免对达到上限的节点不再写入新数据；基于增量区间的路由天然不存在数据迁移和向某一节点无上限写入数据的问题，但却存在“热点”困扰
 * 选择
  * 基于id的hash，可以使用一致性hash
@@ -1015,7 +1016,7 @@ sentinel parallel-syncs resque 5
  * 基于时间分片
  * 基于地理位置
 
-###### 关联表的冗余字段问题
+##### 关联表的冗余字段问题
 
 查询用户 1 关注的所有男性用户，并且以每页 20 条进行分页
 ```plain
@@ -1038,10 +1039,10 @@ select * from user where id in (ids) amd sex = 1;
 
 **上述查询可能出现数据量不足的情况，需要把sex字段从user表冗余到follow表中去**
 
-###### 关联表的冗余表
+##### 关联表的冗余表
 > **对于表之间的关联关系，尽量将一对多，多对一中的关联数据放在同一个分片下（例如一个用户和他所发的所有微博哦），多对多关系最坏情况需要在在关联双方所在的数据库都存放一条记录，并且保持这多条记录的同步更新。**
 
-###### 水平分片的分页查询解决方法 
+##### 水平分片的分页查询解决方法 
 > 比方表t被水平拆分成表t1和t2，则取出前10条数据时，需在t1取10条，t2取10条，合并后再取最前面10条。问题是翻页越翻到后面，取第1000条到1010条数据，则一共要取2000+条数据出来排序，效率极大降低
 [解决方案](http://www.10tiao.com/html/249/201702/2651959942/1.html)
 * 直接t1取1010，t2取1010，在应用层合并后排序取出10条(暴力法)
@@ -1138,6 +1139,7 @@ select * from user where id in (ids) amd sex = 1;
 
 ### 在服务端做还是在客户端做
 > * 服务端做的好处是客户端职责单一，缺点是每次要到负载均衡的服务中心取服务地址，多了一次网络请求
+* 中央的代理节点自身的处理速度和网卡带宽的瓶颈，以及LB自身的高可用
 * 客户端做则需要在本地维护一套注册中心的server列表，并时刻同步信息
 
 ## 分布式协调服务框架
@@ -1166,7 +1168,6 @@ select * from user where id in (ids) amd sex = 1;
 * dns动态解析，非常适合依赖域名来辨识主机的集群服务，多用在类aws、阿里云这样的云服务
 * 模板渲染
 * 服务发现动态配置重载.   
-
 
 > * Consul + Consul-template(每次去Consul拉数据往模板里填)实现动态负载均衡(增加减少实例不用手动改nginx.conf的upstream)，缺点是每次每次配置变化(upstream 服务加入、退出)都会由系统自动执行nginx的reload功能，有一定的损耗
  * {% asset_img 29.png %}
@@ -1209,7 +1210,7 @@ select * from user where id in (ids) amd sex = 1;
 
 ### Bloom Filter
 #### [简介](https://my.oschina.net/kiwivip/blog/133498)
-用于检索一个元素是否在一个集合中。它的优点是空间效率和查询时间都远远超过一般的算法，缺点是有一定的误识别率和删除困难
+> **用于检索一个元素是否在一个集合中。它的优点是空间效率和查询时间都远远超过一般的算法，缺点是有一定的误识别率和删除困难**
 False Positive即误报，比方垃圾邮件、缓存服务器都是可以接受的。False Negative即漏报，Bloom Filter不会存在漏报的情况
 
 #### 过程
@@ -1422,7 +1423,7 @@ The access control includes
 * ngx_cache_purge
 
 # TODO
-> * prepare看到适配器模式卡住，再回顾顺便画UML图
+> 
 * 归纳准备的算法题(BFS DFS Greedy Backtracking DP 分治)
 * 在公司做
    * linux  strace tmux
@@ -1430,16 +1431,15 @@ The access control includes
    * jvm指令（jstat和GC相关、jmap和堆快照文件相关）
    * 工厂模式
 * 周末处理
- * netty结构
+ * **netty**
  * 原理类准备
    * zookeeper(paxos算法)
    * spring(aop ioc) 
    * redis(单线程模型)
    * 索引
    * servlet
-   * keepalived
-   * mybatis
- * 集合类
+   * keepalived(ARRP)
+ * **集合类**
  * SpringMVC的分发过程 [来自](http://blog.csdn.net/u013256816/article/details/51787470)
  * SpringBean的加载过程
  * LVS和Nigix的区别及使用场景 

@@ -10,12 +10,10 @@ comments: false
 - 出生年月：199201
 - 籍贯：广东汕头
 - 手机：13410711694
-
-# 教育经历
->  * [南京农业大学](http://baike.baidu.com/item/%E5%8D%97%E4%BA%AC%E5%86%9C%E4%B8%9A%E5%A4%A7%E5%AD%A6)　　2011-09至2015-06　　**本科**（网络工程专业）
+- 毕业学校：[南京农业大学，请点此](http://baike.baidu.com/item/%E5%8D%97%E4%BA%AC%E5%86%9C%E4%B8%9A%E5%A4%A7%E5%AD%A6)　　2011-09至2015-06
 
 # 职业经历
-> * 嘉联支付（第三方支付公司）
+> * 嘉联支付（第三方支付公司，毕业至今）
    * **2016-04至今** 在**嘉联支付**核心产品**[易装机](http://easy.jlpay.com/)**（有**微信小程序版，名为“好嘉伙“**）部门任后台开发一职，另外涉及两个内部人员（业务员和运维人员）使用的app，一共3个app和1个小程序。模式是客户将有装pos机需求的商户带给我们，我们把商户每日交易获得的利润一部分回馈给用户。
     * 涉及技术：keepalived + tengine(nginx) + [RPC框架ICE](https://github.com/zeroc-ice/ice) + [zookeeper](https://github.com/apache/zookeeper) + activemq + redis + [前端框架jui](http://jui.org/) + jquery + mybatis + spring
     * 负责内容：系统后台的开发，在项目组中算独挡一面，常和产品经理一起梳理业务流程，并参与到系统设计、流程优化改进等工作中
@@ -28,7 +26,7 @@ comments: false
 * 涉猎面广，对技术有热枕。了解分布式相关的基础知识，CAP理论，微服务、服务注册发现、服务降级、数据库分库分表、分布式缓存、分布式会话、分布式锁、高可用……
 * 熟悉**索引**、**sql语句优化**
 * 熟悉**[OpenResty](http://openresty.org/cn/)+lua**，nginx
-* 熟悉权限系统的**设计原理ACL(Access Control List)、DAC(Discretionary Access Control)、RBAC**，实现框架熟悉shiro，自己做的**[基于openResty+lua的权限校验](https://github.com/jingb/lua_openresty_permission)**
+* 熟悉权限系统的**设计原理ACL、RBAC**，实现框架熟悉shiro，自己做的**[基于openResty+lua的权限校验](https://github.com/jingb/lua_openresty_permission)**
 * 大学时自学过android开发，**[github上的个人练手app，请点我](https://github.com/jingb/Personal-Android-Demo)**
 * 常用工具**包括但不限于如下**
   **Vim**、linux下各类常用指令（文本操作类如**grep、find、awk、sort、uniq**，系统监控类如**vmstat、strace、iostat、free**）、markdown、shadowsock（翻墙）、Xmind（思维导图）、Mac开发环境(**命令行爱好者**)，Chrome、Firefox下各类乱七八糟的浏览器插件
