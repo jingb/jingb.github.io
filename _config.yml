@@ -99,8 +99,8 @@ menu:
   tags: /tags
 
 backup:
-    type: git
-    repository:
-      github: https://github.com/jingb/jingb.github.io.git,hexo
-      gitcafe: https://github.com/jingb/jingb.github.io.git,hexo
+  type: git
+  repository:
+    github: https://github.com/jingb/jingb.github.io.git,hexo
+    gitcafe: https://github.com/jingb/jingb.github.io.git,hexo
 

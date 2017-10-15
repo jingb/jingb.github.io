@@ -17,6 +17,7 @@ tags:
 
 ### 固定模板
 > 用固定模板减少边界值判断出错
+
 ```plain
 while (l < r - 1) {
     int m = l + (r - l) / 2;
@@ -32,6 +33,7 @@ while (l < r - 1) {
     }
 }
 ```
+
 
 ### 实现
 ```plain
@@ -134,6 +136,51 @@ return base * sign;
 * {% asset_img 2.png %}
 * 一般情形下快排是第一选择，如果对stable有要求并且有足够空间，可以选择归并排序
 
+## 冒泡
+
+``` plain
+public static void bubbleSort(int[] arr) {
+  boolean flag = true;
+  // 至多 len - 1 趟，每趟确定最大\小的那个数
+  for (int i=0; i<=arr.length-1 && flag; i++) {
+  	flag = false;
+  	// 比较相邻的两个数，所以是j和j+1
+  	for (int j=0; j<arr.length-i-1; j++) {
+  		if (arr[j] > arr[j+1]) {
+  			int t = arr[j];
+  			arr[j] = arr[j+1];
+  			arr[j+1] = t;
+  			flag = true;
+  		}
+  	}
+  }
+}
+```
+
+## 选择
+
+> 分有序区和无序区, 每次在无序区选出最大元素追加到有序区的最后
+
+```plain 
+public static void selectSort(int arr[]) {
+  // 至多len-1趟
+  for (int i=0; i<arr.length; i++) {
+  	int minIndex = i;
+	// 小于等于i的是有序区，之后开始是无序区
+  	for (int j=i+1; j<arr.length; j++) {
+  		if (arr[j] < arr[minIndex]) 
+  			minIndex = j;
+  	}
+  	if (minIndex != i) {
+  		int t = arr[i];
+  		arr[i] = arr[minIndex];
+  		arr[minIndex] = t;
+  	}
+  	printArr(arr);
+  }
+}
+```
+
 ## 归并排序
 ```plain
 public static void mergeSort(int[] array, int low, int high) {
@@ -157,9 +204,36 @@ private static void merge(int arr[], int left, int middle, int right) {
 ```
 
 ## 快排
-> 定基准——首先随机选择一个元素最为基准
-划分区——所有比基准小的元素置于基准左侧，比基准大的元素置于右侧
-递归调用——递归地调用此切分过程
+> 定基准——首先随机选择一个元素(一般选第一个)最为基准
+划分区——所有比基准小的元素置于基准左侧，比基准大的元素置于右侧，**这样pivot这个数的位置便确定了**
+递归调用——递归地调用此切分过程至每个子数组仅剩一个元素
+
+```plain
+private static void qsort(int[] arr, int low, int high) {
+    if (low < high) {
+        int pivot = partition(arr, low, high);        //将数组分为两部分
+        qsort(arr, low, pivot-1);                   //递归排序左子数组
+        qsort(arr, pivot+1, high);                  //递归排序右子数组
+    }
+}
+
+private static int partition(int[] arr, int low, int high) {
+    int pivot = arr[low];     //枢轴记录
+    while (low < high) {
+        while (low<high && arr[high]>=pivot) 
+          --high;
+        arr[low]=arr[high];             //交换比枢轴小的记录到左端
+        while (low<high && arr[low]<=pivot) 
+          ++low;
+        arr[high] = arr[low];           //交换比枢轴小的记录到右端
+    }
+    //扫描完成，枢轴到位
+    arr[low] = pivot;
+    //返回的是枢轴的位置
+    return low;
+}
+
+```
 
 
 # Greedy
