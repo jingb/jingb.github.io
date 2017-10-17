@@ -1770,23 +1770,7 @@ public int findKthLargest(int[] nums, int k) {
 
 # TODO
 > 
-* redis 的持久化和构建分布式缓存系统
-
-* 服务治理 微服务的概念
-* **volatile关键字在jdk类中的使用**
-* ReentrantLock
-  * 怎么实现可重入
-  * 公平不公平的实现细节要想明白并阐述的了
-  * volatile关键字的使用结合CAS
-* 常量池 String
 * 冷备、热备、双活的区别 
-
-
-* 排期
-  * 关于GC补一下垃圾收集器和强、弱引用方面的内容
- * 原理类准备
-   * zookeeper(paxos算法)
-   * 索引
 * Netty聊天application
 * java8 api实现sql函数，和Stream、CompletableFuture细化
 
