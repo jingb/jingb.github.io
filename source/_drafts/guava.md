@@ -86,4 +86,3 @@ ActionHandler.getActionFor(ZoomAction.class).setEnabled(false);
   * filter函数(过滤)保留了约定俗成的名字Collections2#filter
   * guava中没有fold(reduce)函数，java 8有
 
-
