@@ -14,7 +14,10 @@ tags:
   * **not an alternative implementation of Java8 Streams, nor the Collection framework, 而是Reactor pattern的一种实现**
 * java 8
   * Spliterator和stream的底层构造函数相关，Connecting a stream on a source。Stream API由于Spliterator模式的存在变得易扩展
-  * Stream无法重用
+  * [ForkJoinPool和parallelism Stream可能存在的问题 阿里中文版](http://www.jianshu.com/p/bd825cb89e00)
+  * [英文版](https://zeroturnaround.com/rebellabs/java-parallel-streams-are-bad-for-your-health/)
+  * **Stream#parallel() does not allow to specify a thread pool to use. Since all stream instances in a JVM use the same fork-join pool, adding .parallel() can accidentally affect the behaviour in another module of your program**
+  * ManagedBlocker接口，作用: One of the ways to deal with blocking methods in parallel streams is by using the ForkJoinPool.ManagedBlocker interface
 * Supplier的接口
 * Collector接口和并行处理的关系
 * **Stream#collect方法和reduce方法的比对，滥用reduce可能会让流无法并行**
