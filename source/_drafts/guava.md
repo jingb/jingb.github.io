@@ -105,7 +105,7 @@ ActionHandler.getActionFor(ZoomAction.class).setEnabled(false);
 * 基础函数
   * ` public interface Function<F, T> { T apply(F input); } `
   * Predicate接口和Function的区别就是返回值是true或false，其他一样
-  * b = f(a) c = g(b) **compose(g, f) = h(a, c)**
+  * b = f(a) c = g(b) 则相当于 **compose(g, f) = h(a, c)**
 
 ```java
 Range<Integer> age35to50 = Range.closed(35, 55);
@@ -117,6 +117,7 @@ Predicate<Person> predicate = Predicates.compose(age35to50, new Function<Person,
 });
 FluentIterable.from(personList).filter(predicate);
 ```
+
 > 
 * 高级函数
   * 至少接受一个函数作为参数，返回结果是个函数，则此函数成为higher-order function
@@ -130,6 +131,20 @@ FluentIterable.from(personList).filter(predicate);
   
 
 # java8
+
+## 基础的几个函数式接口
+### Function
+* compose方法，Integer result = add3.compose(multiple2).apply(10); 
+  * **先执行乘2操作再执行加3操作**
+  * guava的Function没有compose方法，Functions里有个工具方法
+* andThen和compose正好相反
+
+### BiFuction
+* 入参为两个的Function接口的特例
+
+### BinaryOperator
+
+## 其他
 > 
 * stateless和stateful
   * map和filter这种一般是无状态的(不要在方法里操作成员变量)，从流里读一个数据然后输出结果 
@@ -242,3 +257,9 @@ public static long parallelRangedSum(long n) {
 
 
 {% asset_img 2.png 易拆解的数据结构 %}
+
+
+## CompletableFuture
+> 
+* 本质是一种Monad
+
