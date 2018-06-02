@@ -90,8 +90,8 @@ social_icons:
 
 #disqus_shortname: jingb
 
-duoshuo_shortname: jingb
-duoshuo_share: false
+# duoshuo_shortname: jingb
+# duoshuo_share: false
 
 menu: 
   home: /
@@ -104,3 +104,5 @@ menu:
   #     github: https://github.com/jingb/jingb.github.io.git,hexo
   #     gitcafe: https://github.com/jingb/jingb.github.io.git,hexo
 
+encrypt:
+  enable: true

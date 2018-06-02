@@ -54,6 +54,7 @@ menu:
   #sitemap: /sitemap.xml
   #commonweal: /404/
   jingb: /jingb
+  books: /books
 
 # Enable/Disable menu icons.
 # Icon Mapping:
@@ -66,6 +67,7 @@ menu_icons:
   home: home
   about: user
   jingb: user
+  books: book
   categories: th
   schedule: calendar
   tags: tags
@@ -311,7 +313,7 @@ font:
 
 # MathJax Support
 mathjax:
-  enable: false
+  enable: true
   per_page: false
   cdn: //cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML
 
@@ -328,19 +330,19 @@ han: false
 #duoshuo_shortname:
 
 # Disqus
-disqus:
-  enable: false
-  shortname:
-  count: true
+# disqus:
+#   enable: true
+#   shortname: jingb
+#   count: true
 
 # Hypercomments
-#hypercomments_id:
+hypercomments_id: 103693
 
 # changyan
-changyan:
-  enable: false
-  appid:
-  appkey:
+# changyan:
+#   enable: false
+#   appid:
+#   appkey:
 
     
 # Valine. 
@@ -356,7 +358,7 @@ valine:
 
 # Support for youyan comments system.
 # You can get your uid from http://www.uyan.cc
-#youyan_uid: your uid
+# youyan_uid: 2161001 
 
 # Support for LiveRe comments system.
 # You can get your uid from https://livere.com/insight/myCode (General web site)
