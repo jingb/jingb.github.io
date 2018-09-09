@@ -2,7 +2,6 @@
 title: interview
 date: 2017-10-18 17:13:10
 tags:
-password: interview
 ---
 
 
@@ -335,7 +334,11 @@ class Tthread extends Thread {
 * [严肃的回答](https://www.zhihu.com/question/19732473/answer/20851256)
 * 同步\异步关注**消息通信机制**，在死等还是等回调
 * 阻塞和非阻塞关注的是程序在等待调用结果（消息，返回值）时的状态
- 
+* **同步的意义只是说客户端发过来的数据到达之前，我干不了其他的事情。而阻塞强调的是调用一个函数，线程会不会休眠**
+* **同样是很权威的几本书，包括操作系统教程，对于异步的定义都是不同的，有人把IO多路复用归为异步，有人把它归为同步，看你从哪个角度去定义同步或者异步**
+ * IO复用函数，把IO可读可写的事件丢给了selector，当事件发生的时候，selector通知你，然后你自己决定下一步执行什么操作。另一种场景，**老板说你查到了就给客户打电话通知系统升级。好，这个过程中，员工问，我查到以后做什么，这其实就是请求注册一个回调函数。老板说你查到了再干某某事，这个某某事就是真正注册的回调函数。员工做完了第一件事情之后，就可以使用第一件事情的结果（电话号码）去执行第二件事了。这个过程老板甚至都不需要关心第一件和第二件事之间的切换，老板只需要通过注册回调告诉员工就行了。这才是真正的异步模型**。
+ * 如果线程A服务1，2两个客户端，在服务客户端1的时候，有个远程调用要等，不拿到结果没办法接着走下一步的动作。此时线程不阻塞，即不会说卡在等待远程调用的地方休眠了，而是去服务客户端2。如果站在服务客户端1的角度而言，不等到远程调用结果不能接着走，可以把这个定义成同步。而如果从服务客户端2的角度而言，线程本身并没有阻塞。服务端在等待1的远程调用的时候，可以同时去做其他的任务。这个角度而言，也可以将IO多路复用归类为异步模型。
+* 海纳关于NIO的教程，一个客户端给服务器先发被除数，再发除数，然后服务端计算结果返回的例子。用[状态机](https://zhuanlan.zhihu.com/p/27451893)和[回调模式](https://zhuanlan.zhihu.com/p/27484203)两种方式分别实现
 
 #### 传统BIO
 一个请求来开一个线程去应答，客户端请求和服务端线程数是1:1的关系。如果请求量巨大服务会挂。
@@ -364,10 +367,12 @@ Selector不断轮询注册在上面的Channel，由于JDK使用了epoll函数代
 ### Netty
 > 
 * [网友源码学习](https://github.com/yongshun/learn_netty_source_code)
+* jim写的关于netty的[线程模型](https://www.cnblogs.com/ASPNET2008/p/7106820.html)
 * [Netty耗时的业务逻辑写在哪](https://www.zhihu.com/question/35487154) 
  * 自己的业务线程池
  * 消息队列
 * ChannelHandler分inbound、outbound，在ChannelPipeline中组成链条，顺序处理业务，A ChannelHandlerContext represents an association between a ChannelHandler and a ChannelPipeline and is created whenever a ChannelHandler is added to a Channel-Pipeline
+* ChannelPipeline[解决了什么问题](https://github.com/code4craft/netty-learning/blob/73fd879a7dbc159a63157a6d91891b7e74783bbe/posts/ch3-pipeline.md#sendupstream%E5%92%8Csenddownstream)
 * Channel : EventLoop = n : 1
 * EventLoopGroup : EventLoop = n : 1
 * An EventLoop is bound to a single Thread for its lifetime
@@ -380,6 +385,16 @@ Selector不断轮询注册在上面的Channel，由于JDK使用了epoll函数代
 
 {% asset_img 35.png %}
 {% asset_img 34.png %}
+
+#### ByteBuf
+* [零拷贝](https://segmentfault.com/a/1190000007560884)
+* [池化了Buffer资源](https://my.oschina.net/andylucc/blog/614589)
+* netty in action里是byteBuf usage pattern一节
+ * 内存是由堆管理 HeapBuffer
+ * DIRECT BUFFERS  **This aims to avoid copying the buffer’s contents to (or from) an intermediate buffer before (or after) each invocation of a native I/O operation. The Javadoc for  ByteBuffer states  explicitly,  “The  contents  of  direct  buffers  will reside outside of the normal garbage-collected heap.”**  避免了JVM堆内存和直接内存之间数据来回复制，在一些应用场景中性能有显著的提高。
+  * DirectBuffer的申请和释放相比HeapBuffer效率更低，解决问题的是PooledByteBuf，即池化
+  * [回收](https://stackoverflow.com/questions/6697709/are-java-directbytebuffer-wrappers-garbage-collected) 和PhantomReference有关
+ * composite buffers 两者混合形式
 
 #### TCP粘包问题处理
 > 
@@ -561,7 +576,7 @@ Selector不断轮询注册在上面的Channel，由于JDK使用了epoll函数代
 * JVM 每次只会使用 Eden 和其中的一块 Survivor 区域来为对象服务，所以无论什么时候，总是有一块 Survivor 区域是空闲着的，新生代实际可用的内存空间为 9/10
 * **survivor分成from和to是因为young区采用**[复制的GC算法](#GC copying)
 * Survivor 区的对象每熬过一次 Minor GC，就将对象的年龄 + 1，当对象的年龄达到某个值时( -XX:MaxTenuringThreshold 来设定 )
-* **比较常规是，Java堆大小的初始化值和最大值（通过-Xms和-Xmx选项来指定）应该是old代活动对象的大小的3到4倍**
+* **比较常规是，Java堆大小的初始化值和最大值（通过-Xms和-Xmx选项来指定）应该是一次Full GC之后，old代活动对象的大小的3到4倍, 然后 年轻:年老=1:3**
 
 #### 关于Direct Memory
 > 
@@ -1110,6 +1125,7 @@ sentinel parallel-syncs resque 5
 > 
 * 为什么需要
   * 用**动态代理**实现透明化远程服务调用(封装通信细节让用户像以本地调用方式调用远程服务)
+  * 用nginx这样的软负载也可以做到负载均衡服务自动注册发现下线通知，甚至扩容的时候不用重启nginx或者reload nginx.conf文件。那为什么还需要RPC？做**服务治理功能，比方熔断、限流、服务版本等问题**
 * 实现功能
   * 对消息进行编码和解码
   * 通信框架
@@ -1121,6 +1137,10 @@ sentinel parallel-syncs resque 5
   * 幂等设计
   * 提前生成唯一流水号来保证写操作通过流水号实现幂等操作，提供查询接口
 
+## dubbo
+
+* 超时设置的优先级
+  客户端方法级>客户端接口级>客户端全局>服务端方法级>服务端接口级>服务端全局
 
 ## RxJava
 
@@ -1693,6 +1713,13 @@ public int findKthLargest(int[] nums, int k) {
 > * [58沈剑的文章](http://www.infoq.com/cn/articles/flash-deal-architecture-optimization)
 
 ## 系统问题排查
+
+### io过高
+* [参考](http://bencane.com/2012/08/06/troubleshooting-high-io-wait-in-linux/)
+  1. 确认系统负载上升是否由于I/O异常导致，top看iowait数值，或者iostat -x 2 5，看util参数
+  2. 找出引起高I/O的进程，```ps -eo state,pid,cmd | grep "^D";``` 查找D状态的进程，状态码的含义看ps的说明
+
+
 ### cpu过高的排查过程
 >  
 * 先通过top命令查看占用cpu高的PID

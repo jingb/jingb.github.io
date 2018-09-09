@@ -7,11 +7,12 @@ tags:
 ## 二分查找
 ### 例题
 > * [有序数组(0 1 2 4 5 6 7)在某个位置做了旋转，比方(4 5 6 7 0 1 2)，元素不重，找出最小的那个数](https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/description/)
-   * 最优是用二分查找
+   * 最优是用二分查找 **看到有序的第一反应得往二分去想**
    * [题解](http://www.cnblogs.com/yuzhangcmu/p/4049030.html)
 * [二分查找英文wiki](https://en.wikipedia.org/wiki/Binary_search_algorithm)
 * 相关术语，前驱(predecessor, next-smallest element)，后继(successor，next-largest element)，秩(rank, the number of smaller elements)
 * 适合解决的问题, 范围查询(Rang query)，最近邻搜索
+* [九章算法笔记](https://stomachache007.wordpress.com/2017/03/11/%E4%B9%9D%E7%AB%A0%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0-2-binary-search/)
 
 <!-- more -->
 
@@ -19,6 +20,9 @@ tags:
 > 用固定模板减少边界值判断出错
 
 ```plain
+
+退出条件是 l = r - 1;  这时只剩两个元素，再和target比较就行
+
 while (l < r - 1) {
     int m = l + (r - l) / 2;
 
@@ -241,5 +245,9 @@ private static int partition(int[] arr, int low, int high) {
 * 适用：在有最优子结构的问题中尤为有效。最优子结构是局部最优解能决定全局最优解。简单地说，问题能够分解成子问题来解决，子问题的最优解能递推到最终问题的最优解
 * 动态规划的不同在于它对每个子问题的解决方案都做出选择，**不能回退**。动态规划则会保存以前的运算结果，并根据以前的结果对当前进行选择，有回退功能
 
+
+# DFS
+* **其实就是一种有一定策略的枚举**
+* 深搜里面又有普通深搜，回溯法
 
 
