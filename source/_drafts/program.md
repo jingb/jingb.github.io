@@ -4,9 +4,14 @@ tags:
 ---
 
 复杂度的公式 O(构造解的复杂度 * 解的个数)
+{% asset_img 复杂度.jpg %}
 
 # 查找类
 ## 二分查找
+### 总结概述
+[网友](https://www.cnblogs.com/Raising-Sun/p/5747072.html) 
+[九章](https://stomachache007.wordpress.com/2017/03/11/%E4%B9%9D%E7%AB%A0%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0-2-binary-search/)
+
 ### 例题
 > * [有序数组(0 1 2 4 5 6 7)在某个位置做了旋转，比方(4 5 6 7 0 1 2)，元素不重，找出最小的那个数](https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/description/)
    * 最优是用二分查找 **看到有序的第一反应得往二分去想**
@@ -251,5 +256,6 @@ private static int partition(int[] arr, int low, int high) {
 # DFS
 * **其实就是一种有一定策略的枚举**
 * 深搜里面又有普通深搜，回溯法
-
+* [chen-Tao对于DFS、回溯模板的理解](http://chen-tao.github.io/2017/01/27/al-template/)
+* [九章DFS归纳](https://stomachache007.wordpress.com/2017/03/22/%E4%B9%9D%E7%AB%A0%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0-5-%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2-depth-first-search/)
 
