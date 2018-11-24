@@ -5,16 +5,10 @@ tags:
 
 * 简易RPC + Netty + ThreadLocal
   * 异步调用 调用链 先细节 再看如何实现 context threadLocal   
-    * 老版本的异步调用很弱 Future get 方法其实也是阻塞
-    * 老版本dubbo的ResponseFuture也很弱，没有java8的completeFuture的api强大，比方如多个Future协同工作 [全异步调用链](http://dubbo.apache.org/zh-cn/blog/dubbo-new-async.html) 
-    * 异步是Consumer端的异步，provider端不支持
-    * A -> B 是异步 B的处理过程里本来是同步调的C，然鹅因为 A调B的时候在context里设置了异步的标志，导致B调C也变成了异步，然后会取不到结果
-    
-  * SPI 的设计，比原生的java spi解决了什么问题 
-  * Filter链条
   * jim-framework 和 黄勇及阿帆卢的版本对比，做了哪些改进
 * 套入处理内存泄露问题 + socketio-netty + vjtools
-* 用ansible搭一个高可用队列的拓扑
+
+* 用ansible搭一个高可用队列的拓扑(不做)
 
 <!-- more -->
 

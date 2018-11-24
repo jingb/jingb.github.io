@@ -13,10 +13,17 @@ tags:
 
 <!-- more -->
 
+# 版本、接口设计问题
+
 # 责任链 上下文 threadLocal
 
 # SPI
 * 原生SPI的梳理 [比较详细](https://zhuanlan.zhihu.com/p/28909673)
+{% asset_img spi.png  %}
+**接口属于实现方的情况，就是我们经常说的api，组织上位于实现方所在的包中
+当接口属于调用方时，我们就将其称为spi** 
+
+* [dubbo如何做到高度可扩展](http://dubbo.apache.org/zh-cn/blog/introduction-to-dubbo-spi.html)
 * [官方源码，特别详细，包含warpper](http://dubbo.apache.org/zh-cn/blog/introduction-to-dubbo-spi-2.html) 
 * 原生的spi有什么问题
   * 扩展如果依赖其他的扩展，做不到自动注入和装配。不提供类似于Spring的IOC和AOP功能

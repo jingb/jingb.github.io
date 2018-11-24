@@ -1141,6 +1141,8 @@ sentinel parallel-syncs resque 5
 
 * 超时设置的优先级
   客户端方法级>客户端接口级>客户端全局>服务端方法级>服务端接口级>服务端全局
+* [dubbo 明细](/2018/11/17/dubbo/) 
+
 
 ## RxJava
 
