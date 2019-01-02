@@ -2,9 +2,16 @@
 title: program
 tags:
 ---
+# 复杂度
 
-复杂度的公式 O(构造解的复杂度 * 解的个数)
+　　复杂度计算公式 =  O(构造解的复杂度 * 解的个数)
+
 {% asset_img 复杂度.jpg %}
+
+## P NP NPC 问题
+* [matrix关于P NP NPC问题](http://www.matrix67.com/blog/archives/105)
+* O(1),O(log(n)),O(n^a)等，我们把它叫做多项式级的复杂度，因为它的规模n出现在底数的位置；另一种是O(a^n)和O(n!)型复杂度，它是非多项式级的，其复杂度计算机往往不能承受
+* 非确定性（Non-Deterministic） 比方找大质数的问题。有没有一个公式，你一套公式，就可以一步步推算出来，下一个质数应该是多少呢
 
 # 查找类
 ## 二分查找
@@ -142,8 +149,12 @@ return base * sign;
 * 不合法的输入
 
 # 排序类
+## 各种排序的动态图和复杂度
+[网文](https://www.cnblogs.com/onepixel/articles/7674659.html)
+
 ## 概览
-> * 排序术语in place指no extra memory except perhaps for a small function-call stack or a constant number of instance variables，像归并排序需要额外开辟空间
+> * 排序术语inplace指no extra memory except perhaps for a small function-call stack or a constant number of instance variables，像归并排序需要额外开辟空间
+* stable 假定在待排序的记录序列中，存在多个具有相同的关键字的记录，若经过排序，这些记录的相对次序保持不变，即在原序列中
 * {% asset_img 2.png %}
 * 一般情形下快排是第一选择，如果对stable有要求并且有足够空间，可以选择归并排序
 
