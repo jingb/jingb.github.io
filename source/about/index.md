@@ -1,47 +1,41 @@
 ---
-title: 简历
-date: 2017-02-04 12:51:24
+title: 
+date: 
 comments: false
 ---
 
 # 基本信息
 > - 姓名：谢景源
-- Email：407268334@qq.com，jingb17498384@gmail.com
-- 出生年月：199201
-- 籍贯：广东汕头
-- 手机：13410711694
-- 毕业学校：[南京农业大学，百度百科](http://baike.baidu.com/item/%E5%8D%97%E4%BA%AC%E5%86%9C%E4%B8%9A%E5%A4%A7%E5%AD%A6)　　2011-09至2015-06(本科)
+- Email：407268334@qq.com　　微信: 407268334
+- 工作年限：3年+
+- 毕业学校：[南京农业大学](http://baike.baidu.com/item/%E5%8D%97%E4%BA%AC%E5%86%9C%E4%B8%9A%E5%A4%A7%E5%AD%A6)　　2011至2015(本科，网络工程)
+- **意向岗位java后台**
 
 # 职业经历
-> * 嘉联支付（第三方支付公司，毕业至今）
-   * **2016-04至今** 在**嘉联支付**核心产品**[易装机](http://easy.jlpay.com/)**（有**微信小程序版，名为“好嘉伙“**）部门任后台开发一职，另外涉及两个内部人员（业务员和运维人员）使用的app，一共3个app和1个小程序。模式是客户将有装pos机需求的商户带给我们，我们把商户每日交易获得的利润一部分回馈给用户。
-    * 涉及技术：keepalived、tengine(nginx)、[RPC框架ICE](https://github.com/zeroc-ice/ice)、[zookeeper](https://github.com/apache/zookeeper)、activemq、redis、[前端框架jui](http://jui.org/)、jquery、mybatis、spring
-    * 负责模块与内容：系统后台的开发工作，和产品经理一起梳理业务，并参与到业务流程设计优化等工作中
-      * 用户账号、政策(多级分润)体系
-      * 系统各角色(业务员、客户、录单人员、运维人员)间的权限体系
-      * 订单状态流转及业务、推合作银行信用卡业务
+> * 小米 （信息部xms售后研发组 **2017-10月至今**）
+   * 小米有品售后系统（新系统）
+      * **项目背景**：小米有品现在的售后系统是小米有品团队自行开发，由于有品团队不熟悉售后业务开发较慢，便打算将售后业务慢慢切至小米售后团队
+      * 负责**库存模块，调拨模块**的表设计及接口（如出入库、库存预占、释放、查询、每日库存快照等）设计和实现
+      * 系统严格按照业务垂直切分，库存、调拨、工单、基础数据等不同业务模块间没有连表操作，便于后续业务量大之后服务与库的拆分
+      * 以springboot+mybatis+springmvc为基础，团队级的系统规范，包装过的拦截链，统一的异常信息处理，统一的国际化处理等
+      * 参与一些基础性功能的开发，如注解实现数据库读写分离 AbstractRoutingDataSource + ThreadLocal 等功能
+   * 备件中心物料库存计划项目
+      * **项目背景**：小米备件中心的库存过高，业务方希望降低库存。计划团队做物料需求预测是线下Excel制作，此项目是将计划团队线下常用的统计学算法、在保量算法等细化丰富之后功能搬至线上。
+      * **统计学算法**：对于低值且生命周期相对长历史数据丰富的物料，常使用多种统计学算法（指数平滑、双指数平滑、线性回归等）预测未来一段时间的消耗量，再从多个结果中比较效果最好的，参考其后续趋势
+      * **在保量算法**：大致逻辑是，比方已经上市较长时间或已退市的物料A和物料B材质特性相近，则B在做整个生命周期消耗量预测的时候，可以参考物料A在整个生命周期各个月的损坏率(损坏量/在保量)
+      * **项目效果**：上线后，物料库存计划从线下开始逐渐搬至线上，计划及预警周期由原先线下的周，提升至日，在保量算法提供了 物料+三级机型+工单类型 更细维度数据的参考，提升了计划的准确率，在较小程度降低服务质量的同时，较大程度地降低了备件中心的库存成本
+      * 最大表大概年4亿量级，使用shardingJDBC 分4库32表
+      * 良好的代码设计，用模板方法定义了统一的流程，接入了良品库、样品库。针对多种不同的统计学算法定义统一的入参和出参接口，各个算法独立实现，避免了大量if else判断
+* 嘉联支付（第三方支付公司 2015-07至2017-09）
+   * **2016-04至2017-09** 在嘉联支付易装机产品组（有微信小程序版）部门任后台开发一职，另外涉及两个内部人员（业务员和运维人员）使用的app。模式是客户将有装pos机需求的商户带给我们，我们把商户每日交易获得的利润一部分回馈给用户。
+    * 涉及技术：keepalived、nginx、RPC框架ICE、zookeeper、jquery、jui
+    * 负责内容：系统后台的开发工作，和产品经理一起梳理业务，用户账号、政策(多级分润)体系、系统各角色(业务员、客户、录单人员、运维人员)间的权限体系
    * **2015-07至2016-03** 在**嘉联支付**增值部门负责**商户定制项目**的开发，**主要是在银行卡交易的基础上做额外的业务**，比方每次消费成功给商户推消息，或者对接商户的会员系统做一些涉及积分或注册会员的操作后再进行消费
 
 # 专业技能
-> * 有学院派计算机功底和算法基础，**[leetcode刷题纪录，请点这里](http://jingb.info/about/index/1.png)**，**可以解决最简单的动态规划问题**
-* 熟悉**mysql索引**、mysql锁、**sql语句优化**
-* 扎实的java服务端开发基础，熟悉主流的后台框架zookeeper、spring、mybatis、activeMq，了解常用的应用问题排查工具和jvm参数
-* 涉猎面广，对技术有热枕。了解分布式相关的基础知识，CAP理论、服务注册发现、数据库分库分表、分布式缓存、分布式会话、分布式锁、高可用……
-* 了解**java NIO、Netty、Reactor模型、Linux IO models**
-* 熟悉**[OpenResty](http://openresty.org/cn/)+lua**，nginx
-* 熟悉权限系统的**设计原理ACL、RBAC**，实现框架shiro，自己做的**[基于openResty+lua的权限校验](https://github.com/jingb/lua_openresty_permission)**
-* 大学时自学过android开发，**[github上的个人练手app，请点我](https://github.com/jingb/Personal-Android-Demo)**
-* 常用工具**包括但不限于如下**
-  **Vim**、linux下各类常用指令（文本操作类如**grep、find、awk、sort、uniq**，了解系统监控类如**strace、vmstat、iostat、free**）、markdown、Mac开发环境(**命令行爱好者**)
-* **不错的英文文档、书籍阅读能力与习惯**，stackoverflow、**[github](https://github.com/jingb/)**社区用户，知道怎么提一个足够清晰，别人愿意回答的问题
-  * **[另附上在stackoverflow一道关于mysql行锁的提问](https://stackoverflow.com/questions/43451914/will-mysql-lock-all-table-while-processing)，得到了mysql专家在stackoverflow上排名top1%的[Rick James](https://stackoverflow.com/users/1766831/rick-james)的回答**
-* **Google重度用户**，熟悉搜索语法和**Google自定义搜索**，**搜索和筛选信息能力出众**
-
-# 个人评价
-> * 爱技术，能**沉得下来做事**
-* 愿意思考总结，**[个人网站](http://jingb.info/)**，学生时代**[老博客](http://blog.csdn.net/u010506640)**
-
-# 兴趣爱好
-> * 请移步[关于我](http://jingb.info/jingb/)
-
-[//]: # (* 涉猎面广，对技术有热枕。了解java8，functional programming，Reactive programming，Netty，分布式相关知识（数据库、缓存、高可用、消息中间件……），**最基本**的前端技术(html+css+javascript+jquery))
+> * 扎实的java服务端开发基础，熟悉主流的后台框架dubbo、shardingJDBC、springboot等
+* 使用过常用的内存问题排查工具MAT，解决过mybatis老版本 GenericTokenParser#parse由于jdk升级String.substring方法实现变化带来的性能问题
+* 熟悉mysql索引、事务、mysql锁
+* 熟悉Viml及inux下常用指令，文本处理类指令比较强
+* 动手能力强，曾用 ansible + vagrant + virtualBox 编写自动搭建和配置hadoop集群的脚本，对一些分布式的知识需要复杂拓扑结构和多节点的情况，有能力编排脚本搭建**可复现**的实验环境
+* 不错的英文文档阅读能力，有独立解决问题的意愿与能力，**能力范围外的，知道怎么用一个最小化的实例描述清楚问题，**

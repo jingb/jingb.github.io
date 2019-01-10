@@ -31,4 +31,10 @@ tags:
 * ExtentionLoader
 * wrapper方面
 
-# 
+# 限流
+客户端 actives="10"参数  支持方法级的限制  ActiveLimitFilter实现
+服务端  executes="10"参数 ExecuteLimitFilter 原理是java信号量做控制 tryAcquire取不到马上返回false 抛异常
+TpsLimitFilter 服务端 支持 方法级的 tps限流 实现了滑动窗口做精确控制
+
+
+

@@ -7,3 +7,10 @@ tags:
 
 > 综上，下文的专业名词我会写英文，出处来自mysql官方和《high performance mysql》即《高性能mysql》这本书，应该是比较权威的，同时会给出中文的参照仅供参考。
 
+
+# 索引的结构
+**为什么不用hash，不支持范围查询** -> 二叉查找树(可能蜕化成O(n)) -> AVL树(平衡条件的二叉查找树) **频繁变动的话，维护这种高度平衡所付出的代价** -> 红黑树是弱平衡二叉树 -> **B-树就是B树** B/B+树是为了磁盘或其它存储设备而设计的一种平衡多路查找树(解决树的高度问题，可以减少访问磁盘的次数) 
+* 局部性原理与磁盘预读 红黑树这种结构，由于逻辑上很近的节点（父子）物理上可能很远，无法利用局部性原理 
+* [参考](https://mp.weixin.qq.com/s?src=11&timestamp=1546955277&ver=1317&signature=GpfbgpbMMpf0joS-41BATYoqgHYDmKs*smfux6maOP6-bXmVrBalT2vEmqzP7ece01lRPArZ4WrMffE8bKZg7def*4K10znocOyMypFZmVKZnDlzoJFqLk1s9c12o8B8&new=1)
+
+

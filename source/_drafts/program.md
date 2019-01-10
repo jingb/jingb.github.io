@@ -117,12 +117,12 @@ for (int i = 0; i != t.size(); ++i) {
  {% asset_img 1.png%}
  * [题目](https://www.kancloud.cn/kancloud/data-structure-and-algorithm-notes/72936)
  * 直观反应是两层for循环 O(n^2)，**慢在每个字符串要重复遍历**
- * Map的key是排好序的字符串。每个字符串可以先排序，O(lg K)，然后添加到map中，整体N\*O(lg K)
+ * Map的key是排好序的字符串。每个字符串可以先排序，O(K lg K) K是字符串的平均长度，然后添加到map中，整体N\*O(K lg K)
 
 ```plain
 Map<String, List<String>> map;
 for (String str : strs) {
-    String sortStr = str排序;
+    String sortStr = str排序; //利用Arrays.sort处理
     if (!map.containsKey(sortStr)) 
         map.put(sortStr, new ArrayList<String>());
     map.get(sortStr).add(s);
@@ -263,10 +263,38 @@ private static int partition(int[] arr, int low, int high) {
 * 适用：在有最优子结构的问题中尤为有效。最优子结构是局部最优解能决定全局最优解。简单地说，问题能够分解成子问题来解决，子问题的最优解能递推到最终问题的最优解
 * 动态规划的不同在于它对每个子问题的解决方案都做出选择，**不能回退**。动态规划则会保存以前的运算结果，并根据以前的结果对当前进行选择，有回退功能
 
+# 搜索
 
-# DFS
+## DFS
 * **其实就是一种有一定策略的枚举**
 * 深搜里面又有普通深搜，回溯法
 * [chen-Tao对于DFS、回溯模板的理解](http://chen-tao.github.io/2017/01/27/al-template/)
 * [九章DFS归纳](https://stomachache007.wordpress.com/2017/03/22/%E4%B9%9D%E7%AB%A0%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0-5-%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2-depth-first-search/)
 
+```plain
+void dfs()//参数用来表示状态  
+{  
+    if(到达终点状态)  
+    {  
+        ...//根据题意添加  
+        return;  
+    }  
+    if(越界或者是不合法状态)  
+        return;  
+    if(特殊状态)//剪枝
+        return ;
+    for(扩展方式)  
+    {  
+        if(扩展方式所达到状态合法)  
+        {  
+            修改操作;//根据题意来添加  
+            标记；  
+            dfs（）；  
+            (还原标记)；  
+            //是否还原标记根据题意  
+            //如果加上（还原标记）就是 回溯法  
+        }  
+
+    }  
+}
+```
