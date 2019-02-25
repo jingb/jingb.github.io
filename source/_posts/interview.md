@@ -879,6 +879,9 @@ final void lock() {
  * 是单例为什么可以同时处理多个请求
 * [单例](https://stackoverflow.com/questions/8011138/servlet-seems-to-handle-multiple-concurrent-browser-requests-synchronously)
 
+异步servlet
+* [网络连接依旧在](https://blog.csdn.net/zhurhyme/article/details/76228836)
+
 ## 设计模式
 * 适配器
  * 系统中有旧类可以实现功能，但客户端的接口和旧类的接口不匹配，需要一个中间链接角色来适配，达到复用旧类的目的
@@ -1494,6 +1497,7 @@ select * from user where id in (ids) amd sex = 1;
 * 四层LB对于应用侵入比较小，这一层的LB对应用的感知较少，同时应用接入基本不需要针对LB做任何的代码改造
 * 七层负载均衡一般对应用本身的感知比较多，可以结合一些通用的业务流量负载逻辑和容灾逻辑做成很细致的负载均衡和流量导向方案，但是一般接入时，应用需要配合做相应的改造
 * 互联网时代流量就是钱啊，对于流量的调度的细致程度往往是四层LB难以满足的
+**LVS工作在第4层，抗压能力强，并发小的时候用nginx足够**
 
 ### 在服务端做还是在客户端做
 > 
@@ -1874,6 +1878,33 @@ public int findKthLargest(int[] nums, int k) {
     aa aa bb 
     bb bb aa
 * dubbo服务端 限流
+
+# shopee
+tcp 半连接 比方server 发起了 finish client 回了 ack 那server不会再往client发数据，能不能读？
+redis的io多路复用
+coroutine
+对象存活  可达性分析 **值得细化**
+线程的状态及切换
+
+# lazada
+* starter作用  spring的拓展
+* 回收算法
+* annotation 注释的bean怎么取
+
+# oppo2019
+* nginx高可用 keepalive脑裂
+* **dubbo超时重试粒度不够细的扩展**
+* 分库分表扩容时怎么不停机
+
+* dubbo 扩展多语言客户端怎么做？
+* 各个版本的特性，未来扩展方向
+* sharding JDBC原理 
+
+* ScheduledThreadPoolExecutor可能存在的问题
+* java的队列分类
+* 线程状态 流转
+* mysql的隔离级别为什么默认是RR
+* spring 事务的传播级别
 
 ## 其他
 * 抢红包业务设计 [跳转](#seize business)

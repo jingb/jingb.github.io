@@ -8,6 +8,10 @@ tags:
 
 <!-- more -->
 
+# 异步
+[CompletableFuture 解决了什么问题](https://www.jianshu.com/p/1e406ffa5f90)
+**[jdbc为什么不是IO多路复用这种设计](https://www.zhihu.com/question/23084473)**
+
 # Synchronous I/O versus Asynchronous I/O
 > * A synchronous I/O operation causes the requesting process to be blocked until that I/O operation completes
 * An asynchronous I/O operation does not cause the requesting process to be blocked.
