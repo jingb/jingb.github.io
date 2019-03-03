@@ -31,7 +31,7 @@ date: 2018-10-12 20:58:46
 
 # 最后
 　　像网站左上角的slogan一样，这辈子的最大追求是**做一个好玩的人**
-　　微信：407268334
+　　微信: 407268334
 
 <img src="/infoDetailImages/照 压缩版.jpeg" >
 ![](/infoDetailImages/篮球.jpeg)
