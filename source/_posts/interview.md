@@ -373,9 +373,10 @@ Selector不断轮询注册在上面的Channel，由于JDK使用了epoll函数代
 
 ### Netty
 > 
+* [基础组件和api sheet](https://emacsist.github.io/2017/06/25/netty%E5%AE%9E%E6%88%98%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/)
 * [网友源码学习](https://github.com/yongshun/learn_netty_source_code)
 * jim写的关于netty的[线程模型](https://www.cnblogs.com/ASPNET2008/p/7106820.html)
-* [Netty耗时的业务逻辑写在哪](https://www.zhihu.com/question/35487154) 
+* [Netty耗时的业务逻辑写在哪](https://www.zhihu.com/question/35487154) [参考](https://www.cnblogs.com/stateis0/p/9062151.html) 
  * 自己的业务线程池
  * 消息队列
 * ChannelHandler分inbound、outbound，在ChannelPipeline中组成链条，顺序处理业务，A ChannelHandlerContext represents an association between a ChannelHandler and a ChannelPipeline and is created whenever a ChannelHandler is added to a Channel-Pipeline
@@ -402,6 +403,15 @@ Selector不断轮询注册在上面的Channel，由于JDK使用了epoll函数代
   * DirectBuffer的申请和释放相比HeapBuffer效率更低，解决问题的是PooledByteBuf，即池化
   * [回收](https://stackoverflow.com/questions/6697709/are-java-directbytebuffer-wrappers-garbage-collected) 和PhantomReference有关
  * composite buffers 两者混合形式
+
+##### 零拷贝
+[零拷贝(zero copy)技术，用于在数据读写中减少甚至完全避免不必要的CPU拷贝，减少内存带宽的占用，提高执行效率，零拷贝有几种不同的实现原理](https://mp.weixin.qq.com/s?src=11&timestamp=1573968998&ver=1979&signature=WH3eUSQfgHUKBSXJL1GtTmZW9z5cFyfjGmfs-JMcQPRxj2F02UShjG4g3DoUQHV9shlIKnizfafP0jwA0cutAYK0eeaqB-tK9P53PaYoa0wWOAIs8PJKbXcNwzCkNhD6&new=1)
+* RocketMQ基于mmap + write的方式实现零拷贝：mmap() 可以将内核中缓冲区的地址与用户空间的缓冲区进行映射，实现数据共享，省去了将数据从内核缓冲区拷贝到用户缓冲区
+
+#### OutBound
+* **Outbound 事件的传播方向是 tail -> customContext -> head.**
+* connect是一个outbound事件，路径如下图
+![](http://img.blog.ztgreat.cn/document/netty/20190121184504.png)
 
 #### TCP粘包问题处理
 > 
@@ -1162,6 +1172,9 @@ sentinel parallel-syncs resque 5
   * 提前生成唯一流水号来保证写操作通过流水号实现幂等操作，提供查询接口
 
 ## dubbo
+
+* 单一长连接怎么做并发
+[网文](https://blog.kazaff.me/2014/09/20/dubbo%E5%8D%8F%E8%AE%AE%E4%B8%8B%E7%9A%84%E5%8D%95%E4%B8%80%E9%95%BF%E8%BF%9E%E6%8E%A5%E4%B8%8E%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%B9%B6%E5%8F%91%E5%A6%82%E4%BD%95%E5%8D%8F%E5%90%8C%E5%B7%A5%E4%BD%9C/)
 
 * 超时设置的优先级
   客户端方法级>客户端接口级>客户端全局>服务端方法级>服务端接口级>服务端全局
