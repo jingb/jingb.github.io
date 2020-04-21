@@ -75,6 +75,8 @@ deploy:
   type: git
   repository: https://github.com/jingb/jingb.github.io.git
   branch: master
+  name: jingb
+  email: 407268334@qq.com
 
 social:
   GitHub: https://github.com/jingb

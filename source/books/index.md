@@ -3,6 +3,12 @@ title: 最近在看
 date: 2018-04-17 21:58:40
 type: "picture"
 ---
+202003-202004 《哈利波特与火焰杯》 
+<img src="/books_images/哈利波特与火焰杯.jpg" width="200px"  >
+
+202002-202003 《哈利波特与阿兹卡班的囚徒》 
+<img src="/books_images/哈利波特与阿兹卡班的囚徒.jpg" width="200px"  >
+
 201911-201912 《废都》 贾平凹
 <img src="/books_images/废都.jpg" width="200px"  >
 
@@ -12,7 +18,7 @@ type: "picture"
 201908 《第一炉香》 张爱玲
 <img src="/books_images/第一炉香.jpg" width="200px"  >
 第二炉香不知道在写些啥，还是这个好看点。
-有同名电影，王安忆是编剧，写长恨歌的王安忆。好像今年会上映？
+有同名电影，王安忆是编剧，写长恨歌的王安忆。好像20年会上映
 
 201908 《妈阁是座城》 严歌苓
 <img src="/books_images/妈阁是座城.jpg" width="200px"  >
@@ -20,7 +26,7 @@ type: "picture"
 
 201907 《小李飞刀1 多情剑客无情剑》 古龙
 <img src="/books_images/小李飞刀.jpg" width="200px"  >
-小李飞刀有4部，只有第一部是写李寻欢的
+小李飞刀有4部，据说最好看的是这部 好像20年有电视剧，坐等
 
 201907 《楚留香新传1：借尸还魂》 古龙
 <img src="/books_images/楚留香 借尸还魂.jpg" width="200px"  >

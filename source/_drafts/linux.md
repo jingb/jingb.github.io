@@ -68,3 +68,21 @@ du -sm /*  检查根目录底下每个目录所占用的容量
 # 文件
 每个文件用一个 inode(记录属性，属主，操作时间等) 和 一些block(存储内容)
 
+# 正则
+[练习文件](http://linux.vbird.org/linux_basic/0330regularex/regular_express.txt)
+```
+grep -n 't[ae]st' regular_express.txt  // 搜tast或test
+grep -n '[^a-z]oo' regular_express.txt // oo前面没有小写字母
+grep -n '^[a-z]oo' regular_express.txt // **行首的单词** 以小写字母开头然后接oo 的行  
+grep -n '[a-z]oo' regular_express.txt  // 和上面比少了行首  ^在[]内表示没有，[]外表示行首
+grep -n '\.$' regular_express.txt  // 捞出行尾是句点的  要加\斜杠是为了防止句点匹配任何字符
+grep -nE 'o{2,4}g' regular_express.txt  // o有2-4个然后以g结尾
+grep -nE 'o{2,}g' regular_express.txt  // o有2个以上
+grep -n 'g*g' regular_express.txt  // g*g  里面的 g* 代表『空字符或一个以上的 g』在加上后面的 g，-> g, gg, ggg, ggg
+
+
+在万用字符当中，* 代表的是 0~无限 多个字符的意思，但是在正规表示法当中, 
+*  则是重复 0 到多个的前一个  RE  字符的意思～使用的意义并不相同
+ls a* 是捞a开头的文件  正则用法是 ls | grep  '^a.*'
+```
+
