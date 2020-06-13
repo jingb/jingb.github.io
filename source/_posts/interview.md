@@ -1187,6 +1187,9 @@ sentinel parallel-syncs resque 5
 > * stream
 * lamda
 * CompletableFuture
+[从 Future 到 Loom](https://www.jianshu.com/p/5db701a764cb)
+[complatableFuture异常处理](https://www.logicbig.com/tutorials/core-java-tutorial/java-multi-threading/completion-stages-exception-handling.html)
+
 
 ## 缓存
 
