@@ -63,9 +63,41 @@ Linux 中的中断处理程序分为上半部和下半部：
 ![](https://static001.geekbang.org/resource/image/59/ec/596397e1d6335d2990f70427ad4b14ec.png)
 ![](https://static001.geekbang.org/resource/image/7a/17/7a445960a4bc0a58a02e1bc75648aa17.png)
 
+![](https://static001.geekbang.org/resource/image/cc/ee/ccd7a9350c270c0168bad6cc8d0b8aee.png)
+![](https://static001.geekbang.org/resource/image/37/a4/37d04c213acfa650bd7467e3000356a4.png)
 
 
 
+# tcp
+* syn flood攻击 -> client发了个syn然后下线，服务端回ack后没收到响应会重发ack，重试5次，1s + 2s + 4s+ 8s+ 16s + 32s = 63s 没成功才断开这个链接。攻击者耗尽了服务端的syn队列
+* ISN（即第一个seq）的初始化，收发两端的初始值都不是1而是个随机值。和链接断开重连有关，会错乱
+* 建立链接过程 ![建立链接](http://www.taohui.pub/wp-content/uploads/2017/01/accept%E9%98%9F%E5%88%97-1-1-1.jpg)
+* int listen(int sockfd, int backlog) backlog在listen函数设置  sysctl net.core.somaxconn查看系统设置，应用程序也可以调整
+* [backlog太小引发的应用吞吐量问题排查](https://time.geekbang.org/column/article/87342)  netstat -s 可以看有没有因队列慢导致socket丢包的
+
+## 重传
+慢启动是什么解决什么问题 -> 发送窗口初始值是2MSS -> 递增 2+2 4+4 8+8 
+RTO超时重传太慢 -> 快速重传(Fast Retransmit) -> 
+RTO 丢包 到 重传该包的时间 -> 发生重传的时候，拥塞窗口的调整是有讲究的，rfc定义 发了19个包，只有3个收到确认，则窗口值被定为（19-3）/2 = 8。 -> 快速重传导致的重传不需要调整拥塞窗口，因为后续的包都到了，说明网络并没有严重拥塞
+快速重传面临的问题
+![问题](https://coolshell.cn/wp-content/uploads/2014/05/FASTIncast021.png)
+**收到3个ack2的时候不知道#3 #4 #5是不是丢了**，到底4 5 6 要不要重传
+* 早期是无脑重传
+* SACK(Selective Acknowledgment)解决了这个问题
+* ![](https://coolshell.cn/wp-content/uploads/2014/05/tcp_sack_example-1024x577.jpg) 接收方在告诉发送方ack300的时候，把收到了哪些包都告诉发送方了，这样发送方就知道重传哪些了
+* D-SACK 解决 **可以让发送方知道，是发出去的包丢了，还是回来的ACK包丢了** **网络上出现了先发的包后到的情况** 具体看[陈皓](https://coolshell.cn/articles/11564.html#SACK_%E6%96%B9%E6%B3%95) 
+
+## rst包
+这个标记用来强制断开连接，通常是之前建立的连接已经不在了、包不合法、或者实在无能为力处理 **rst包是协议栈发送的，应用程序不知道**
+* 接受端控制发送端，发送端的window size为0了，这时候发送端就不发数据了。这时候tcp通过Zero Window Probe把窗口给调大，具体是发包让接收端调大他的窗口，如果3次后还是0，有些实现会直接rst包断开连接
+* ![远端断电重启](https://user-gold-cdn.xitu.io/2019/6/19/16b6dd2177aff16c?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
+
+# psh
+PSH（Push）：告知对方这些数据包收到以后应该马上交给上层应用，不能缓存起来
+
+## 拥塞控制
+解决加塞问题 -> 慢启动 -> 拥塞避免 -> 发生拥塞了 -> 快速恢复窗口大小
 
 
+[ack seq号的变化](https://segmentfault.com/a/1190000016375111)
 
